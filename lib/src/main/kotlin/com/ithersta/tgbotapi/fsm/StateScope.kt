@@ -7,21 +7,27 @@ import kotlin.reflect.safeCast
 
 internal typealias Handler<BaseState, S, U> = suspend StatefulContext<BaseState, S>.(U) -> Unit
 
-class StateScope<BaseState : Any, S : BaseState>(
+class StateScope<BaseState : Any, S : BaseState> internal constructor(
     private val type: KClass<S>,
-    private val handlers: MutableList<InternalHandler<BaseState>>,
-    private val requestsExecutor: RequestsExecutor
+    private val addHandler: (InternalHandler<BaseState>) -> Unit,
+    private val addCommand: (CommandEntry<out BaseState>) -> Unit,
+    private val requestsExecutor: RequestsExecutor,
+    val parentScope: StateMachineScope<BaseState>
 ) {
     fun <Data> on(
         handler: Handler<BaseState, S, Data>,
         convertToData: (Update) -> List<Data>
     ) {
-        handlers.add { anyUpdate, baseState, setState ->
-            val state = type.safeCast(baseState) ?: return@add false
-            convertToData(anyUpdate).forEach {
+        addHandler { anyUpdate, baseState, setState ->
+            val state = type.safeCast(baseState) ?: return@addHandler false
+            convertToData(anyUpdate).ifEmpty { return@addHandler false }.forEach {
                 handler(StatefulContext(requestsExecutor, state, setState), it)
             }
             true
         }
+    }
+
+    internal fun addCommand(command: String, description: String) {
+        addCommand(CommandEntry(command, description, type))
     }
 }

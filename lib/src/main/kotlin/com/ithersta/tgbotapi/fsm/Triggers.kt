@@ -24,10 +24,14 @@ fun <BaseState : Any, S : BaseState> StateScope<BaseState, S>.onText(
 
 fun <BaseState : Any, S : BaseState> StateScope<BaseState, S>.onCommand(
     command: String,
+    description: String?,
     filter: (TextMessage) -> Boolean = { true },
     handler: Handler<BaseState, S, TextMessage>
-) = onCommonMessage(handler) {
-    it.content.text == "/$command" && filter(it)
+) {
+    onCommonMessage(handler) {
+        it.content.text == "/$command" && filter(it)
+    }
+    description?.let { addCommand(command, it) }
 }
 
 fun <BaseState : Any, S : BaseState> StateScope<BaseState, S>.onContact(
