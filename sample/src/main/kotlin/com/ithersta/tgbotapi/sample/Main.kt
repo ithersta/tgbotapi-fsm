@@ -16,7 +16,7 @@ suspend fun main() {
             onHelpCommand()
         }
         state<EmptyState> {
-            onCommand("start", "начать") {
+            onCommand("start", "register") {
                 setState(WaitingForName)
                 sendTextMessage(it.chat, "What's your name?")
             }

@@ -11,7 +11,7 @@ telegramBot(System.getenv("TOKEN")).runStateMachine<DialogState>(
         onHelpCommand()
     }
     state<EmptyState> {
-        onCommand("start", "начать") {
+        onCommand("start", "register") {
             setState(WaitingForName)
             sendTextMessage(it.chat, "What's your name?")
         }
