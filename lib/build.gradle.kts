@@ -11,7 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.inmo:tgbotapi:3.1.1")
+    api("dev.inmo:tgbotapi:3.1.1")
+    api("io.insert-koin:koin-core:3.2.0")
 }
 
 publishing {

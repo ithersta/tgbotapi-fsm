@@ -3,13 +3,14 @@ package com.ithersta.tgbotapi.fsm.builders
 import com.ithersta.tgbotapi.fsm.FsmDsl
 import com.ithersta.tgbotapi.fsm.entities.RoleFilter
 import com.ithersta.tgbotapi.fsm.entities.StateFilter
+import org.koin.core.component.KoinComponent
 import kotlin.reflect.KClass
 
 @FsmDsl
 class RoleFilterBuilder<BaseRole : Any, BaseState : Any>(
     private val predicate: (BaseRole?) -> Boolean,
     private val baseStateType: KClass<BaseState>
-) {
+) : KoinComponent {
     private val filters = mutableListOf<StateFilter<BaseState, *>>()
 
     inline fun <reified S : BaseState> state(noinline block: StateFilterBuilder<BaseState, S>.() -> Unit) {

@@ -9,12 +9,13 @@ import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.types.commands.BotCommandScope
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
+import org.koin.core.component.KoinComponent
 import kotlin.reflect.KClass
 
 @FsmDsl
 class StateMachineBuilder<BaseRole : Any, BaseState : Any, Key : Any>(
     private val baseStateType: KClass<BaseState>
-) {
+) : KoinComponent {
     private var includeHelp = false
     private val filters = mutableListOf<RoleFilter<BaseRole, BaseState>>()
 
