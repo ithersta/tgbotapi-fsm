@@ -42,7 +42,7 @@ class StateMachine<BaseRole : Any, BaseState : Any, Key : Any>(
         executeAsync(
             SetMyCommands(commands(role, state), getScope(key))
         )
-        onStateChangedHandler(role, state)?.invoke(bot, key) { onStateChanged(key, state) }
+        onStateChangedHandler(role, state)?.invoke(bot, key) { onStateChanged(key, it) }
     }
 
     private fun handler(update: Update, role: BaseRole?, state: BaseState): AppliedHandler<BaseState>? {
