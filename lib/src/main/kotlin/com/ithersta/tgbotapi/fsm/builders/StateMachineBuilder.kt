@@ -1,5 +1,6 @@
 package com.ithersta.tgbotapi.fsm.builders
 
+import com.ithersta.tgbotapi.fsm.FsmDsl
 import com.ithersta.tgbotapi.fsm.entities.RoleFilter
 import com.ithersta.tgbotapi.fsm.entities.StateMachine
 import com.ithersta.tgbotapi.fsm.repository.StateRepository
@@ -10,6 +11,7 @@ import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import kotlin.reflect.KClass
 
+@FsmDsl
 class StateMachineBuilder<BaseRole : Any, BaseState : Any, Key : Any>(
     private val baseStateType: KClass<BaseState>
 ) {

@@ -1,9 +1,11 @@
 package com.ithersta.tgbotapi.fsm.builders
 
+import com.ithersta.tgbotapi.fsm.FsmDsl
 import com.ithersta.tgbotapi.fsm.entities.RoleFilter
 import com.ithersta.tgbotapi.fsm.entities.StateFilter
 import kotlin.reflect.KClass
 
+@FsmDsl
 class RoleFilterBuilder<BaseRole : Any, BaseState : Any>(
     private val predicate: (BaseRole?) -> Boolean,
     private val baseStateType: KClass<BaseState>

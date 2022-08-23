@@ -1,9 +1,11 @@
 package com.ithersta.tgbotapi.fsm.builders
 
+import com.ithersta.tgbotapi.fsm.FsmDsl
 import com.ithersta.tgbotapi.fsm.entities.StateFilter
 import com.ithersta.tgbotapi.fsm.entities.triggers.Trigger
 import kotlin.reflect.KClass
 
+@FsmDsl
 class StateFilterBuilder<BaseState : Any, S : BaseState>(private val type: KClass<S>) {
     private val triggers = mutableListOf<Trigger<BaseState, S, *>>()
 
