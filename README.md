@@ -4,7 +4,7 @@ Finite state machine DSL for Telegram Bot API.
 
 ## Sample code
 ````kotlin
-val stateMachine = stateMachine<Role, DialogState>(
+private val stateMachine = stateMachine<Role, DialogState>(
     getRole = { null },
     stateRepository = InMemoryStateRepositoryImpl(EmptyState),
 ) {
@@ -18,37 +18,34 @@ val stateMachine = stateMachine<Role, DialogState>(
     }
     withoutRole {
         state<EmptyState> {
-            onCommand("start", "register") {
-                setState(WaitingForName)
-                sendTextMessage(it.chat, "What's your name?")
-            }
+            onTransition { sendTextMessage(it, "Empty state") }
+            onCommand("start", "register") { setState(WaitingForName) }
         }
         state<WaitingForName> {
-            onText {
-                val name = it.content.text
-                setState(WaitingForAge(name))
-                sendTextMessage(it.chat, "What's your age?")
-            }
+            onTransition { sendTextMessage(it, "What's your name?") }
+            onText { setState(WaitingForAge(it.content.text)) }
         }
         state<WaitingForAge> {
+            onTransition { sendTextMessage(it, "What's your age?") }
             onText { message ->
                 val age = message.content.text.toIntOrNull()?.takeIf { it > 0 } ?: run {
                     sendTextMessage(message.chat, "Invalid age")
                     return@onText
                 }
-                setState(WaitingForConfirmation(state.name, age).also {
-                    sendTextMessage(message.chat, "Confirm: ${it.name} ${it.age}. Yes/No")
-                })
+                setState(WaitingForConfirmation(state.name, age))
             }
         }
         state<WaitingForConfirmation> {
+            onTransition {
+                sendTextMessage(it, "Confirm: ${state.name} ${state.age}. Yes/No")
+            }
             onText("Yes") {
-                setState(EmptyState)
                 sendTextMessage(it.chat, "Good!")
+                setState(EmptyState)
             }
             onText("No") {
-                setState(EmptyState)
                 sendTextMessage(it.chat, "Bad!")
+                setState(EmptyState)
             }
             onText {
                 sendTextMessage(it.chat, "Yes/No")

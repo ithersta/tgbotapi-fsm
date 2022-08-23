@@ -12,23 +12,23 @@ import dev.inmo.tgbotapi.types.message.content.MessageContent
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.PreviewFeature
 
-fun <BaseState : Any, S : BaseState> StateFilterBuilder<BaseState, S>.onText(
+fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onText(
     vararg text: String,
     filter: (TextMessage) -> Boolean = { true },
     handler: Handler<BaseState, S, TextMessage>
 ) = onCommonMessage(handler) { (it.content.text in text || text.isEmpty()) && filter(it) }
 
-fun <BaseState : Any, S : BaseState> StateFilterBuilder<BaseState, S>.onContact(
+fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onContact(
     filter: (ContactMessage) -> Boolean = { true },
     handler: Handler<BaseState, S, ContactMessage>
 ) = onCommonMessage(handler, filter = filter)
 
-fun <BaseState : Any, S : BaseState> StateFilterBuilder<BaseState, S>.onDocument(
+fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onDocument(
     filter: (DocumentMessage) -> Boolean = { true },
     handler: Handler<BaseState, S, DocumentMessage>
 ) = onCommonMessage(handler, filter = filter)
 
-fun <BaseState : Any, S : BaseState> StateFilterBuilder<BaseState, S>.onCommand(
+fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onCommand(
     command: String,
     description: String?,
     filter: (TextMessage) -> Boolean = { true },
@@ -39,7 +39,7 @@ fun <BaseState : Any, S : BaseState> StateFilterBuilder<BaseState, S>.onCommand(
 ) { it.content.text == "/$command" && filter(it) }
 
 @OptIn(PreviewFeature::class)
-private inline fun <BaseState : Any, S : BaseState, reified T : MessageContent> StateFilterBuilder<BaseState, S>.onCommonMessage(
+private inline fun <BaseState : Any, S : BaseState, Key : Any, reified T : MessageContent> StateFilterBuilder<BaseState, S, Key>.onCommonMessage(
     noinline handler: Handler<BaseState, S, CommonMessage<T>>,
     botCommand: BotCommand? = null,
     crossinline filter: (CommonMessage<T>) -> Boolean = { true }

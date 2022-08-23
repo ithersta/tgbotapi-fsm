@@ -3,6 +3,7 @@ package com.ithersta.tgbotapi.sample
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
 import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.fsm.entities.triggers.onText
+import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.sample.Role.Admin
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
@@ -27,37 +28,34 @@ private val stateMachine = stateMachine<Role, DialogState>(
     }
     withoutRole {
         state<EmptyState> {
-            onCommand("start", "register") {
-                setState(WaitingForName)
-                sendTextMessage(it.chat, "What's your name?")
-            }
+            onTransition { sendTextMessage(it, "Empty state") }
+            onCommand("start", "register") { setState(WaitingForName) }
         }
         state<WaitingForName> {
-            onText {
-                val name = it.content.text
-                setState(WaitingForAge(name))
-                sendTextMessage(it.chat, "What's your age?")
-            }
+            onTransition { sendTextMessage(it, "What's your name?") }
+            onText { setState(WaitingForAge(it.content.text)) }
         }
         state<WaitingForAge> {
+            onTransition { sendTextMessage(it, "What's your age?") }
             onText { message ->
                 val age = message.content.text.toIntOrNull()?.takeIf { it > 0 } ?: run {
                     sendTextMessage(message.chat, "Invalid age")
                     return@onText
                 }
-                setState(WaitingForConfirmation(state.name, age).also {
-                    sendTextMessage(message.chat, "Confirm: ${it.name} ${it.age}. Yes/No")
-                })
+                setState(WaitingForConfirmation(state.name, age))
             }
         }
         state<WaitingForConfirmation> {
+            onTransition {
+                sendTextMessage(it, "Confirm: ${state.name} ${state.age}. Yes/No")
+            }
             onText("Yes") {
-                setState(EmptyState)
                 sendTextMessage(it.chat, "Good!")
+                setState(EmptyState)
             }
             onText("No") {
-                setState(EmptyState)
                 sendTextMessage(it.chat, "Bad!")
+                setState(EmptyState)
             }
             onText {
                 sendTextMessage(it.chat, "Yes/No")

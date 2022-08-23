@@ -17,18 +17,18 @@ class StateMachineBuilder<BaseRole : Any, BaseState : Any, Key : Any>(
     private val baseStateType: KClass<BaseState>
 ) : KoinComponent {
     private var includeHelp = false
-    private val filters = mutableListOf<RoleFilter<BaseRole, BaseState>>()
+    private val filters = mutableListOf<RoleFilter<BaseRole, BaseState, Key>>()
 
-    fun role(role: BaseRole, block: RoleFilterBuilder<BaseRole, BaseState>.() -> Unit) {
-        filters += RoleFilterBuilder<BaseRole, BaseState>({ it == role }, baseStateType).apply(block).build()
+    fun role(role: BaseRole, block: RoleFilterBuilder<BaseRole, BaseState, Key>.() -> Unit) {
+        filters += RoleFilterBuilder<BaseRole, BaseState, Key>({ it == role }, baseStateType).apply(block).build()
     }
 
-    fun withoutRole(block: RoleFilterBuilder<BaseRole, BaseState>.() -> Unit) {
-        filters += RoleFilterBuilder<BaseRole, BaseState>({ it == null }, baseStateType).apply(block).build()
+    fun withoutRole(block: RoleFilterBuilder<BaseRole, BaseState, Key>.() -> Unit) {
+        filters += RoleFilterBuilder<BaseRole, BaseState, Key>({ it == null }, baseStateType).apply(block).build()
     }
 
-    fun anyRole(block: RoleFilterBuilder<BaseRole, BaseState>.() -> Unit) {
-        filters += RoleFilterBuilder<BaseRole, BaseState>({ true }, baseStateType).apply(block).build()
+    fun anyRole(block: RoleFilterBuilder<BaseRole, BaseState, Key>.() -> Unit) {
+        filters += RoleFilterBuilder<BaseRole, BaseState, Key>({ true }, baseStateType).apply(block).build()
     }
 
     fun includeHelp() {
