@@ -1,20 +1,31 @@
 package com.ithersta.tgbotapi.sample
 
-import com.ithersta.tgbotapi.fsm.onCommand
-import com.ithersta.tgbotapi.fsm.onHelpCommand
-import com.ithersta.tgbotapi.fsm.onText
+import com.ithersta.tgbotapi.fsm.builders.stateMachine
+import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
+import com.ithersta.tgbotapi.fsm.entities.triggers.onText
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
-import com.ithersta.tgbotapi.fsm.runStateMachine
+import com.ithersta.tgbotapi.sample.Role.Admin
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
+import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
 
-suspend fun main() {
-    telegramBot(System.getenv("TOKEN")).runStateMachine<DialogState>(
-        repository = InMemoryStateRepositoryImpl(EmptyState)
-    ) {
-        state<DialogState> {
-            onHelpCommand()
+enum class Role {
+    Admin
+}
+
+private val stateMachine = stateMachine<Role, DialogState>(
+    getRole = { null },
+    stateRepository = InMemoryStateRepositoryImpl(EmptyState),
+) {
+    includeHelp()
+    role(Admin) {
+        anyState {
+            onCommand("wow", "admin command") {
+                sendTextMessage(it.chat, "You're an admin!")
+            }
         }
+    }
+    withoutRole {
         state<EmptyState> {
             onCommand("start", "register") {
                 setState(WaitingForName)
@@ -53,4 +64,10 @@ suspend fun main() {
             }
         }
     }
+}
+
+suspend fun main() {
+    telegramBot(System.getenv("TOKEN")).buildBehaviourWithLongPolling {
+        stateMachine.apply { collect() }
+    }.join()
 }

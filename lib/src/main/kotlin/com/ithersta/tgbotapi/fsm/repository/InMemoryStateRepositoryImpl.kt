@@ -1,16 +1,16 @@
 package com.ithersta.tgbotapi.fsm.repository
 
-import dev.inmo.tgbotapi.types.UserId
 import java.util.concurrent.ConcurrentHashMap
 
-class InMemoryStateRepositoryImpl<BaseState : Any>(private val default: BaseState) : StateRepository<BaseState> {
-    private val states = ConcurrentHashMap<UserId, BaseState>()
+class InMemoryStateRepositoryImpl<Key : Any, BaseState : Any>(private val default: BaseState) :
+    StateRepository<Key, BaseState> {
+    private val states = ConcurrentHashMap<Key, BaseState>()
 
-    override fun get(userId: UserId): BaseState {
-        return states[userId] ?: default
+    override fun get(key: Key): BaseState {
+        return states[key] ?: default
     }
 
-    override fun set(userId: UserId, state: BaseState) {
-        states[userId] = state
+    override fun set(key: Key, state: BaseState) {
+        states[key] = state
     }
 }
