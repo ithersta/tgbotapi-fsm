@@ -4,28 +4,26 @@ import com.ithersta.tgbotapi.fsm.FsmDsl
 import com.ithersta.tgbotapi.fsm.entities.RoleFilter
 import com.ithersta.tgbotapi.fsm.entities.StateFilter
 import org.koin.core.component.KoinComponent
-import kotlin.reflect.KClass
 
 @FsmDsl
-class RoleFilterBuilder<BaseRole : Any, BaseState : Any, Key : Any>(
-    private val predicate: (BaseRole?) -> Boolean,
-    private val baseStateType: KClass<BaseState>
+class RoleFilterBuilder<BS : Any, BU : Any, U : BU, K : Any>(
+    private val map: (BU) -> U?
 ) : KoinComponent {
-    private val filters = mutableListOf<StateFilter<BaseState, *, Key>>()
+    private val filters = mutableListOf<StateFilter<BS, BU, *, U, K>>()
 
-    inline fun <reified S : BaseState> state(noinline block: StateFilterBuilder<BaseState, S, Key>.() -> Unit) {
-        state(S::class, block)
+    inline fun <reified S : BS> state(noinline block: StateFilterBuilder<BS, BU, S, U, K>.() -> Unit) {
+        state(block) { it as? S }
     }
 
-    fun anyState(block: StateFilterBuilder<BaseState, BaseState, Key>.() -> Unit) {
-        state(baseStateType, block)
+    fun anyState(block: StateFilterBuilder<BS, BU, BS, U, K>.() -> Unit) {
+        state(block) { it }
     }
 
-    fun <S : BaseState> state(type: KClass<S>, block: StateFilterBuilder<BaseState, S, Key>.() -> Unit) {
-        filters += StateFilterBuilder<BaseState, S, Key>(type).apply(block).build()
+    fun <S : BS> state(block: StateFilterBuilder<BS, BU, S, U, K>.() -> Unit, map: (BS) -> S?) {
+        filters += StateFilterBuilder<BS, BU, S, U, K>(map).apply(block).build()
     }
 
-    fun build(): RoleFilter<BaseRole, BaseState, Key> {
-        return RoleFilter(predicate, filters)
+    fun build(): RoleFilter<BS, BU, U, K> {
+        return RoleFilter(map, filters)
     }
 }

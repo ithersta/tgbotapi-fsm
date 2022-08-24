@@ -7,9 +7,9 @@ import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.PreviewFeature
 
 @OptIn(PreviewFeature::class)
-fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onDataCallbackQuery(
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onDataCallbackQuery(
     regex: Regex,
-    handler: Handler<BaseState, S, DataCallbackQuery>,
+    handler: Handler<BS, BU, S, U, DataCallbackQuery>,
     filter: (DataCallbackQuery) -> Boolean = { true }
 ) = add(
     Trigger(handler) {

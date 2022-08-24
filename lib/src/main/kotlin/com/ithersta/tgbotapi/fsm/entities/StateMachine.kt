@@ -13,30 +13,30 @@ import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.commands.BotCommandScope
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 
-class StateMachine<BaseRole : Any, BaseState : Any, Key : Any>(
-    private val filters: List<RoleFilter<BaseRole, BaseState, Key>>,
+class StateMachine<BS : Any, BU : Any, K : Any>(
+    private val filters: List<RoleFilter<BS, BU, *, K>>,
     private val includeHelp: Boolean,
-    private val getKey: (Update) -> Key?,
-    private val getRole: (Key) -> BaseRole?,
-    private val getScope: (Key) -> BotCommandScope,
-    private val stateRepository: StateRepository<Key, BaseState>
+    private val getKey: (Update) -> K?,
+    private val getUser: (K) -> BU,
+    private val getScope: (K) -> BotCommandScope,
+    private val stateRepository: StateRepository<K, BS>
 ) {
     fun BehaviourContext.collect() {
         allUpdatesFlow.subscribeSafelyWithoutExceptionsAsync(scope, { getKey(it) }) { update ->
             val key = getKey(update) ?: return@subscribeSafelyWithoutExceptionsAsync
-            val role = getRole(key)
+            val user = getUser(key)
             val state = stateRepository.get(key)
             createSubContextAndDoWithUpdatesFilter(stopOnCompletion = false) {
-                if (includeHelp && tryHandlingHelp(update) { commands(role, state) }) {
+                if (includeHelp && tryHandlingHelp(update) { commands(user, state) }) {
                     return@createSubContextAndDoWithUpdatesFilter
                 }
-                handler(update, role, state)?.invoke(bot) { onStateChanged(key, it) }
+                handler(update, user, state)?.invoke(bot) { onStateChanged(key, it) }
             }
         }
     }
 
-    private suspend fun BehaviourContext.onStateChanged(key: Key, state: BaseState) {
-        val role = getRole(key)
+    private suspend fun BehaviourContext.onStateChanged(key: K, state: BS) {
+        val role = getUser(key)
         stateRepository.set(key, state)
         @Suppress("DeferredResultUnused")
         executeAsync(
@@ -45,18 +45,18 @@ class StateMachine<BaseRole : Any, BaseState : Any, Key : Any>(
         onStateChangedHandler(role, state)?.invoke(bot, key) { onStateChanged(key, it) }
     }
 
-    private fun handler(update: Update, role: BaseRole?, state: BaseState): AppliedHandler<BaseState>? {
-        return filters.firstNotNullOfOrNull { it.handler(role, update, state) }
+    private fun handler(update: Update, user: BU, state: BS): AppliedHandler<BS>? {
+        return filters.firstNotNullOfOrNull { it.handler(user, update, state) }
     }
 
     private fun onStateChangedHandler(
-        role: BaseRole?,
-        state: BaseState
-    ): AppliedOnStateChangedHandler<BaseState, Key>? {
-        return filters.firstNotNullOfOrNull { it.onStateChangedHandler(role, state) }
+        user: BU,
+        state: BS
+    ): AppliedOnStateChangedHandler<BS, K>? {
+        return filters.firstNotNullOfOrNull { it.onStateChangedHandler(user, state) }
     }
 
-    private fun commands(role: BaseRole?, state: BaseState): List<BotCommand> {
-        return filters.flatMap { it.commands(role, state) }
+    private fun commands(user: BU, state: BS): List<BotCommand> {
+        return filters.flatMap { it.commands(user, state) }
     }
 }

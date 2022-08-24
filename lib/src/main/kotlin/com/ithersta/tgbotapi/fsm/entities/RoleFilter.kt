@@ -5,24 +5,22 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.AppliedOnStateChangedHandler
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 
-class RoleFilter<BaseRole : Any, BaseState : Any, Key : Any>(
-    private val predicate: (BaseRole?) -> Boolean,
-    private val filters: List<StateFilter<BaseState, *, Key>>
+class RoleFilter<BS : Any, BU : Any, U : BU, K : Any>(
+    private val map: (BU) -> U?,
+    private val filters: List<StateFilter<BS, BU, *, U, K>>
 ) {
-    fun handler(role: BaseRole?, update: Update, state: BaseState): AppliedHandler<BaseState>? {
-        if (!predicate(role)) return null
-        return filters.firstNotNullOfOrNull { it.handler(update, state) }
+    fun handler(baseUser: BU, update: Update, state: BS): AppliedHandler<BS>? {
+        val user = map(baseUser) ?: return null
+        return filters.firstNotNullOfOrNull { it.handler(update, state, user) }
     }
 
-    fun onStateChangedHandler(
-        role: BaseRole?, state: BaseState
-    ): AppliedOnStateChangedHandler<BaseState, Key>? {
-        if (!predicate(role)) return null
-        return filters.firstNotNullOfOrNull { it.onStateChangedHandler(state) }
+    fun onStateChangedHandler(baseUser: BU, state: BS): AppliedOnStateChangedHandler<BS, K>? {
+        val user = map(baseUser) ?: return null
+        return filters.firstNotNullOfOrNull { it.onStateChangedHandler(state, user) }
     }
 
-    fun commands(role: BaseRole?, state: BaseState): List<BotCommand> {
-        if (!predicate(role)) return emptyList()
+    fun commands(baseUser: BU, state: BS): List<BotCommand> {
+        if (map(baseUser) == null) return emptyList()
         return filters.flatMap { it.commands(state) }
     }
 }

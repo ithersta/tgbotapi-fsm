@@ -5,30 +5,29 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.fsm.entities.triggers.onText
 import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
-import com.ithersta.tgbotapi.sample.Role.Admin
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
 
-enum class Role {
-    Admin
-}
+sealed interface User
+object Admin : User
+object EmptyUser : User
 
-private val stateMachine = stateMachine<Role, DialogState>(
-    getRole = { null },
+private val stateMachine = stateMachine<DialogState, User>(
+    getUser = { EmptyUser },
     stateRepository = InMemoryStateRepositoryImpl(EmptyState),
 ) {
     includeHelp()
-    role(Admin) {
+    role<Admin> {
         anyState {
             onCommand("wow", "admin command") {
                 sendTextMessage(it.chat, "You're an admin!")
             }
         }
     }
-    withoutRole {
+    role<EmptyUser> {
         state<EmptyState> {
-            onTransition { sendTextMessage(it, "Empty state") }
+            onTransition { sendTextMessage(it, "Empty state. You're $user") }
             onCommand("start", "register") { setState(WaitingForName) }
         }
         state<WaitingForName> {

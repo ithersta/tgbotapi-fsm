@@ -6,27 +6,24 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.OnStateChangedTrigger
 import com.ithersta.tgbotapi.fsm.entities.triggers.Trigger
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.update.abstracts.Update
-import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.safeCast
 
-class StateFilter<BaseState : Any, S : BaseState, Key : Any>(
-    private val type: KClass<S>,
-    private val triggers: List<Trigger<BaseState, S, *>>,
-    private val onChangedTrigger: OnStateChangedTrigger<BaseState, S, Key>?
+class StateFilter<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
+    private val map: (BS) -> S?,
+    private val triggers: List<Trigger<BS, BU, S, U, *>>,
+    private val onChangedTrigger: OnStateChangedTrigger<BS, BU, S, U, K>?
 ) {
-    fun handler(update: Update, baseState: BaseState): AppliedHandler<BaseState>? {
-        val state = type.safeCast(baseState) ?: return null
-        return triggers.firstNotNullOfOrNull { it.handler(update, state) }
+    fun handler(update: Update, baseState: BS, user: U): AppliedHandler<BS>? {
+        val state = map(baseState) ?: return null
+        return triggers.firstNotNullOfOrNull { it.handler(update, state, user) }
     }
 
-    fun onStateChangedHandler(baseState: BaseState): AppliedOnStateChangedHandler<BaseState, Key>? {
-        val state = type.safeCast(baseState) ?: return null
-        return onChangedTrigger?.handler(state)
+    fun onStateChangedHandler(baseState: BS, user: U): AppliedOnStateChangedHandler<BS, K>? {
+        val state = map(baseState) ?: return null
+        return onChangedTrigger?.handler(state, user)
     }
 
-    fun commands(baseState: BaseState): List<BotCommand> {
-        if (!baseState::class.isSubclassOf(type)) return emptyList()
+    fun commands(baseState: BS): List<BotCommand> {
+        if (map(baseState) == null) return emptyList()
         return triggers.mapNotNull { it.botCommand }
     }
 }

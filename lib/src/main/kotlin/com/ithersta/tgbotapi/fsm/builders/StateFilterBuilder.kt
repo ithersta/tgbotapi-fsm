@@ -5,24 +5,23 @@ import com.ithersta.tgbotapi.fsm.entities.StateFilter
 import com.ithersta.tgbotapi.fsm.entities.triggers.OnStateChangedTrigger
 import com.ithersta.tgbotapi.fsm.entities.triggers.Trigger
 import org.koin.core.component.KoinComponent
-import kotlin.reflect.KClass
 
 @FsmDsl
-class StateFilterBuilder<BaseState : Any, S : BaseState, Key : Any>(
-    private val type: KClass<S>
+class StateFilterBuilder<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
+    private val map: (BS) -> S?
 ) : KoinComponent {
-    private val triggers = mutableListOf<Trigger<BaseState, S, *>>()
-    private var onStateChangedTrigger: OnStateChangedTrigger<BaseState, S, Key>? = null
+    private val triggers = mutableListOf<Trigger<BS, BU, S, U, *>>()
+    private var onStateChangedTrigger: OnStateChangedTrigger<BS, BU, S, U, K>? = null
 
-    fun add(trigger: Trigger<BaseState, S, *>) {
+    fun add(trigger: Trigger<BS, BU, S, U, *>) {
         triggers += trigger
     }
 
-    fun set(trigger: OnStateChangedTrigger<BaseState, S, Key>) {
+    fun set(trigger: OnStateChangedTrigger<BS, BU, S, U, K>) {
         onStateChangedTrigger = trigger
     }
 
-    fun build(): StateFilter<BaseState, S, Key> {
-        return StateFilter(type, triggers, onStateChangedTrigger)
+    fun build(): StateFilter<BS, BU, S, U, K> {
+        return StateFilter(map, triggers, onStateChangedTrigger)
     }
 }

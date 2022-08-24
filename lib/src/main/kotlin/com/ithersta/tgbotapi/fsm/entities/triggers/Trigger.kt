@@ -5,18 +5,18 @@ import dev.inmo.tgbotapi.bot.RequestsExecutor
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 
-typealias AppliedHandler<BaseState> = suspend (RequestsExecutor, suspend (BaseState) -> Unit) -> Unit
-typealias Handler<BaseState, S, Data> = suspend StatefulContext<BaseState, S>.(Data) -> Unit
+typealias AppliedHandler<BS> = suspend (RequestsExecutor, suspend (BS) -> Unit) -> Unit
+typealias Handler<BS, BU, S, U, D> = suspend StatefulContext<BS, BU, S, U>.(D) -> Unit
 
-class Trigger<BaseState : Any, S : BaseState, Data>(
-    private val handler: Handler<BaseState, S, Data>,
+class Trigger<BS : Any, BU : Any, S : BS, U : BU, D>(
+    private val handler: Handler<BS, BU, S, U, D>,
     val botCommand: BotCommand? = null,
-    private val toData: Update.() -> Data?
+    private val toData: Update.() -> D?
 ) {
-    fun handler(update: Update, state: S): AppliedHandler<BaseState>? {
+    fun handler(update: Update, state: S, user: U): AppliedHandler<BS>? {
         val data = update.toData() ?: return null
         return { requestsExecutor, setState ->
-            StatefulContext<BaseState, S>(requestsExecutor, state, setState, update).handler(data)
+            StatefulContext<BS, BU, S, U>(requestsExecutor, state, setState, update, user).handler(data)
         }
     }
 }

@@ -12,35 +12,35 @@ import dev.inmo.tgbotapi.types.message.content.MessageContent
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.utils.PreviewFeature
 
-fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onText(
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onText(
     vararg text: String,
     filter: (TextMessage) -> Boolean = { true },
-    handler: Handler<BaseState, S, TextMessage>
+    handler: Handler<BS, BU, S, U, TextMessage>
 ) = onCommonMessage(handler) { (it.content.text in text || text.isEmpty()) && filter(it) }
 
-fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onContact(
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onContact(
     filter: (ContactMessage) -> Boolean = { true },
-    handler: Handler<BaseState, S, ContactMessage>
+    handler: Handler<BS, BU, S, U, ContactMessage>
 ) = onCommonMessage(handler, filter = filter)
 
-fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onDocument(
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onDocument(
     filter: (DocumentMessage) -> Boolean = { true },
-    handler: Handler<BaseState, S, DocumentMessage>
+    handler: Handler<BS, BU, S, U, DocumentMessage>
 ) = onCommonMessage(handler, filter = filter)
 
-fun <BaseState : Any, S : BaseState, Key : Any> StateFilterBuilder<BaseState, S, Key>.onCommand(
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onCommand(
     command: String,
     description: String?,
     filter: (TextMessage) -> Boolean = { true },
-    handler: Handler<BaseState, S, TextMessage>
+    handler: Handler<BS, BU, S, U, TextMessage>
 ) = onCommonMessage(
     handler,
     description?.let { BotCommand(command, it) }
 ) { it.content.text == "/$command" && filter(it) }
 
 @OptIn(PreviewFeature::class)
-private inline fun <BaseState : Any, S : BaseState, Key : Any, reified T : MessageContent> StateFilterBuilder<BaseState, S, Key>.onCommonMessage(
-    noinline handler: Handler<BaseState, S, CommonMessage<T>>,
+private inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any, reified T : MessageContent> StateFilterBuilder<BS, BU, S, U, K>.onCommonMessage(
+    noinline handler: Handler<BS, BU, S, U, CommonMessage<T>>,
     botCommand: BotCommand? = null,
     crossinline filter: (CommonMessage<T>) -> Boolean = { true }
 ) = add(
