@@ -17,6 +17,9 @@ private val stateMachine = stateMachine<DialogState, User>(
     getUser = { EmptyUser },
     stateRepository = InMemoryStateRepositoryImpl(EmptyState),
 ) {
+    onException { userId, throwable ->
+        sendTextMessage(userId, throwable.toString())
+    }
     includeHelp()
     role<Admin> {
         anyState {

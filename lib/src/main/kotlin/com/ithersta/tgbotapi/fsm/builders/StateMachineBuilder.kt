@@ -1,6 +1,7 @@
 package com.ithersta.tgbotapi.fsm.builders
 
 import com.ithersta.tgbotapi.fsm.FsmDsl
+import com.ithersta.tgbotapi.fsm.entities.ExceptionHandler
 import com.ithersta.tgbotapi.fsm.entities.RoleFilter
 import com.ithersta.tgbotapi.fsm.entities.StateMachine
 import com.ithersta.tgbotapi.fsm.repository.StateRepository
@@ -14,6 +15,7 @@ import org.koin.core.component.KoinComponent
 @FsmDsl
 class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
     private var includeHelp = false
+    private var exceptionHandler: ExceptionHandler<K>? = null
     private val filters = mutableListOf<RoleFilter<BS, BU, *, K>>()
 
     inline fun <reified U : BU> role(noinline block: RoleFilterBuilder<BS, BU, U, K>.() -> Unit) {
@@ -32,13 +34,18 @@ class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
         includeHelp = true
     }
 
+    fun onException(exceptionHandler: ExceptionHandler<K>) {
+        check(this.exceptionHandler == null)
+        this.exceptionHandler = exceptionHandler
+    }
+
     fun build(
         getKey: (Update) -> K?,
         getUser: (K) -> BU,
         getScope: (K) -> BotCommandScope,
         stateRepository: StateRepository<K, BS>
     ): StateMachine<BS, BU, K> {
-        return StateMachine(filters, includeHelp, getKey, getUser, getScope, stateRepository)
+        return StateMachine(filters, includeHelp, getKey, getUser, getScope, stateRepository, exceptionHandler)
     }
 }
 

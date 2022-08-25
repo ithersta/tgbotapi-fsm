@@ -4,21 +4,24 @@ Finite state machine DSL for Telegram Bot API.
 
 ## Sample code
 ````kotlin
-private val stateMachine = stateMachine<Role, DialogState>(
-    getRole = { null },
+stateMachine<DialogState, User>(
+    getUser = { EmptyUser },
     stateRepository = InMemoryStateRepositoryImpl(EmptyState),
 ) {
+    onException { userId, throwable ->
+        sendTextMessage(userId, throwable.toString())
+    }
     includeHelp()
-    role(Admin) {
+    role<Admin> {
         anyState {
             onCommand("wow", "admin command") {
                 sendTextMessage(it.chat, "You're an admin!")
             }
         }
     }
-    withoutRole {
+    role<EmptyUser> {
         state<EmptyState> {
-            onTransition { sendTextMessage(it, "Empty state") }
+            onTransition { sendTextMessage(it, "Empty state. You're $user") }
             onCommand("start", "register") { setState(WaitingForName) }
         }
         state<WaitingForName> {
