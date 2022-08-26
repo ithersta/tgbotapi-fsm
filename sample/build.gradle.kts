@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     implementation(project(":lib"))
-    implementation("dev.inmo:tgbotapi:3.1.1")
+    implementation("dev.inmo:tgbotapi:3.2.0")
 }
 
 tasks.getByName<Test>("test") {
