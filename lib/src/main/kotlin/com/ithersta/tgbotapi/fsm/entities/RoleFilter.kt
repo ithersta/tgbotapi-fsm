@@ -19,8 +19,8 @@ class RoleFilter<BS : Any, BU : Any, U : BU, K : Any>(
         return filters.mapNotNull { it.onStateChangedHandler(state, user) }
     }
 
-    fun commands(baseUser: BU, state: BS): List<BotCommand> {
+    fun commands(baseUser: BU): List<BotCommand> {
         if (map(baseUser) == null) return emptyList()
-        return filters.flatMap { it.commands(state) }
+        return filters.flatMap { it.commands() }
     }
 }

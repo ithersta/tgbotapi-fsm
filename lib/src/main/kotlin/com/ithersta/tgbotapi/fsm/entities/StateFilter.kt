@@ -22,8 +22,7 @@ class StateFilter<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
         return onChangedTrigger?.handler(state, user)
     }
 
-    fun commands(baseState: BS): List<BotCommand> {
-        if (map(baseState) == null) return emptyList()
+    fun commands(): List<BotCommand> {
         return triggers.mapNotNull { it.botCommand }
     }
 }

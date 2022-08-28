@@ -30,26 +30,27 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
             runCatching {
                 val user = getUser(key)
                 val state = stateRepository.get(key)
-                if (includeHelp && tryHandlingHelp(update) { commands(user, state) }) {
+                if (includeHelp && tryHandlingHelp(update) { commands(user) }) {
                     return@runCatching
                 }
-                handler(update, user, state)?.invoke(bot) { onStateChanged(key, it) }
+                handler(update, user, state)?.invoke(bot, { setState(key, it) }, { refreshCommands(key) })
             }.onFailure {
                 exceptionHandler?.invoke(bot, key, it)
             }
         }
     }
 
-    private suspend fun BehaviourContext.onStateChanged(key: K, state: BS) {
-        val role = getUser(key)
+    suspend fun RequestsExecutor.setState(key: K, state: BS) {
+        val user = getUser(key)
         stateRepository.set(key, state)
-        @Suppress("DeferredResultUnused")
-        executeAsync(
-            SetMyCommands(commands(role, state), getScope(key))
-        )
-        onStateChangedHandlers(role, state).forEach { handler ->
-            handler(bot, key) { onStateChanged(key, it) }
+        onStateChangedHandlers(user, state).forEach { handler ->
+            handler(this, key, { setState(key, it) }, { refreshCommands(key) })
         }
+    }
+
+    private suspend fun RequestsExecutor.refreshCommands(key: K) {
+        @Suppress("DeferredResultUnused")
+        executeAsync(SetMyCommands(commands(getUser(key)), getScope(key)))
     }
 
     private fun handler(update: Update, user: BU, state: BS): AppliedHandler<BS>? {
@@ -63,7 +64,7 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
         return filters.flatMap { it.onStateChangedHandlers(user, state) }
     }
 
-    private fun commands(user: BU, state: BS): List<BotCommand> {
-        return filters.flatMap { it.commands(user, state) }
+    private fun commands(user: BU): List<BotCommand> {
+        return filters.flatMap { it.commands(user) }
     }
 }

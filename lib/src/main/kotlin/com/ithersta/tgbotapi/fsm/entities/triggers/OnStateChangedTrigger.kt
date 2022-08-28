@@ -7,6 +7,7 @@ class OnStateChangedContext<BS : Any, BU : Any, S : BS, U : BU>(
     requestsExecutor: RequestsExecutor,
     val state: S,
     val setState: suspend (BS) -> Unit,
+    val refreshCommands: suspend () -> Unit,
     val user: U
 ) : RequestsExecutor by requestsExecutor
 
@@ -14,14 +15,14 @@ typealias OnStateChangedHandler<BS, BU, S, U, K> =
         suspend OnStateChangedContext<BS, BU, S, U>.(K) -> Unit
 
 typealias AppliedOnStateChangedHandler<BS, K> =
-        suspend (RequestsExecutor, K, suspend (BS) -> Unit) -> Unit
+        suspend (RequestsExecutor, K, suspend (BS) -> Unit, suspend () -> Unit) -> Unit
 
 class OnStateChangedTrigger<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
     private val handler: OnStateChangedHandler<BS, BU, S, U, K>
 ) {
     fun handler(state: S, user: U): AppliedOnStateChangedHandler<BS, K> {
-        return { requestsExecutor, key, setState ->
-            OnStateChangedContext<BS, BU, _, _>(requestsExecutor, state, setState, user).handler(key)
+        return { requestsExecutor, key, setState, refreshCommands ->
+            OnStateChangedContext<BS, BU, _, _>(requestsExecutor, state, setState, refreshCommands, user).handler(key)
         }
     }
 }

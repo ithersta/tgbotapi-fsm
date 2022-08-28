@@ -7,6 +7,7 @@ class StatefulContext<BS : Any, BU : Any, S : BS, U : BU>(
     requestsExecutor: RequestsExecutor,
     val state: S,
     val setState: suspend (BS) -> Unit,
+    val refreshCommands: suspend () -> Unit,
     val update: Update,
     val user: U
 ) : RequestsExecutor by requestsExecutor

@@ -34,7 +34,10 @@ private val stateMachine = stateMachine<DialogState, User>(
             onCommand("start", "register") { setState(WaitingForName) }
         }
         state<WaitingForName> {
-            onTransition { sendTextMessage(it, "What's your name?") }
+            onTransition {
+                refreshCommands()
+                sendTextMessage(it, "What's your name?")
+            }
             onText { setState(WaitingForAge(it.content.text)) }
         }
         state<WaitingForAge> {
