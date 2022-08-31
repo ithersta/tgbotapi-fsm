@@ -5,6 +5,7 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.fsm.entities.triggers.onText
 import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
+import com.ithersta.tgbotapi.menu.menu
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
@@ -29,9 +30,29 @@ private val stateMachine = stateMachine<DialogState, User>(
         }
     }
     role<EmptyUser> {
+        menu("Меню куратора", MenuStates.Main) {
+            submenu("Разослать информацию", "Выберите получателей", MenuStates.SendInfo) {
+                button("Все", SendStates.ToAll)
+                button("Треккеры", SendStates.ToTrackers)
+                button("Выбрать отдельные команды", SendStates.ChooseTeams)
+                backButton("Назад")
+            }
+            submenu("Получить статистику", "Какую?", MenuStates.GetStats) {
+                button("Выгрузить прогресс команд", GetStatsStates.Teams)
+                button("Выгрузить прогресс треккеров", GetStatsStates.Trackers)
+                backButton("Назад")
+            }
+            submenu("Дополнить базу пользователей", "Кого добавить?", MenuStates.AddUsers) {
+                button("Добавить участников и треккеров", AddUsersStates.WaitingForDocument)
+                button("Добавить куратора", AddUsersStates.CuratorDeeplink)
+                backButton("Назад")
+            }
+            button("Выгрузить протоколы встреч", GetProtocolsState)
+        }
         state<EmptyState> {
             onTransition { sendTextMessage(it, "Empty state. You're $user") }
             onCommand("start", "register") { setState(WaitingForName) }
+            onCommand("menu", "show menu") { setState(MenuStates.Main) }
         }
         state<WaitingForName> {
             onTransition {

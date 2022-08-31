@@ -7,21 +7,21 @@ plugins {
 version = libs.versions.tgbotapi.fsm.get()
 
 dependencies {
+    api(libs.tgbotapi.fsm)
     api(libs.inmo.tgbotapi)
-    api(libs.koin.core)
 }
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "com.ithersta.tgbotapi"
-            artifactId = "tgbotapi-fsm"
+            artifactId = "tgbotapi-menu"
             version = version
 
             from(components["java"])
 
             pom {
-                name.set("Telegram Bot API Finite State Machine DSL")
+                name.set("Telegram Bot API Menu DSL")
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
