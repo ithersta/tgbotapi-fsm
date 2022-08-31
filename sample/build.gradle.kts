@@ -1,17 +1,14 @@
 plugins {
-    kotlin("jvm") version "1.7.10"
+    kotlin("jvm")
 }
 
 group = "com.ithersta"
 version = "unspecified"
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":lib"))
-    implementation("dev.inmo:tgbotapi:3.2.0")
+    implementation(project(":menu"))
+    implementation(libs.inmo.tgbotapi)
 }
 
 tasks.getByName<Test>("test") {
