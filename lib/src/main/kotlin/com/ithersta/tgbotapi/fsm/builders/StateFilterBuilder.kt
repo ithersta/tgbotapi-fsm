@@ -12,16 +12,26 @@ class StateFilterBuilder<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
 ) : KoinComponent {
     private val triggers = mutableListOf<Trigger<BS, BU, S, U, *>>()
     private var onStateChangedTrigger: OnStateChangedTrigger<BS, BU, S, U, K>? = null
+    private var isFrozen = false
 
     fun add(trigger: Trigger<BS, BU, S, U, *>) {
+        checkNotFrozen()
         triggers += trigger
     }
 
     fun set(trigger: OnStateChangedTrigger<BS, BU, S, U, K>) {
+        checkNotFrozen()
         onStateChangedTrigger = trigger
     }
 
     fun build(): StateFilter<BS, BU, S, U, K> {
+        isFrozen = true
         return StateFilter(map, triggers, onStateChangedTrigger)
+    }
+
+    private fun checkNotFrozen() {
+        check(isFrozen.not()) {
+            "Attempted to add trigger after the object was already built (check for nested triggers)"
+        }
     }
 }
