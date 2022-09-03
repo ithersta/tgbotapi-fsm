@@ -1,6 +1,9 @@
 package com.ithersta.tgbotapi.menu.entities
 
-class MenuButton<BS : Any>(
+import com.ithersta.tgbotapi.fsm.entities.triggers.Handler
+import dev.inmo.tgbotapi.types.message.content.TextMessage
+
+class MenuButton<BS : Any, BU : Any, U : BU>(
     override val text: String,
-    override val state: BS
-) : MenuEntry<BS>
+    override val handler: Handler<BS, BU, *, U, TextMessage>
+) : MenuEntry<BS, BU, U>

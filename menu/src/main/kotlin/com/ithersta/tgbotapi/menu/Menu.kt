@@ -15,20 +15,20 @@ import dev.inmo.tgbotapi.types.UserId
 import java.util.*
 import kotlin.reflect.safeCast
 
-fun <BS : Any> RoleFilterBuilder<BS, *, *, UserId>.menu(
+fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.menu(
     textMessage: String,
     menuState: BS,
-    block: MenuBuilder<BS>.() -> Unit
+    block: MenuBuilder<BS, BU, U>.() -> Unit
 ) {
     val menu = createMenu(textMessage, menuState, block)
     val submenus = mutableSetOf(menu)
-    val queue: Queue<MenuEntry<BS>> = LinkedList()
+    val queue: Queue<MenuEntry<BS, BU, U>> = LinkedList()
     queue.addAll(menu.entries)
     while (queue.isNotEmpty()) {
         val entry = queue.poll()
-        if (entry is Menu<*>) {
+        if (entry is Menu<*, *, *>) {
             @Suppress("UNCHECKED_CAST")
-            submenus.add(entry as Menu<BS>)
+            submenus.add(entry as Menu<BS, BU, U>)
             queue.addAll(entry.entries)
         }
     }
@@ -45,9 +45,7 @@ fun <BS : Any> RoleFilterBuilder<BS, *, *, UserId>.menu(
                     })
                 }
                 submenu.entries.forEach { entry ->
-                    onText(entry.text) {
-                        setState(entry.state)
-                    }
+                    onText(entry.text, handler = entry.handler)
                 }
             },
             map = { submenu.state::class.safeCast(it) }

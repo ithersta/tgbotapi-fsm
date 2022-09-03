@@ -39,7 +39,9 @@ private val stateMachine = stateMachine<DialogState, User>(
             }
             submenu("Получить статистику", "Какую?", MenuStates.GetStats) {
                 button("Выгрузить прогресс команд", GetStatsStates.Teams)
-                button("Выгрузить прогресс треккеров", GetStatsStates.Trackers)
+                button("Выгрузить прогресс треккеров") {
+                    sendTextMessage(it.chat, "Кнопка без состояния")
+                }
                 backButton("Назад")
             }
             submenu("Дополнить базу пользователей", "Кого добавить?", MenuStates.AddUsers) {
