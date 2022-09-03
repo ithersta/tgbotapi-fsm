@@ -6,10 +6,7 @@ import dev.inmo.tgbotapi.extensions.utils.commonMessageOrNull
 import dev.inmo.tgbotapi.extensions.utils.withContent
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
-import dev.inmo.tgbotapi.types.message.content.ContactMessage
-import dev.inmo.tgbotapi.types.message.content.DocumentMessage
-import dev.inmo.tgbotapi.types.message.content.MessageContent
-import dev.inmo.tgbotapi.types.message.content.TextMessage
+import dev.inmo.tgbotapi.types.message.content.*
 import dev.inmo.tgbotapi.utils.PreviewFeature
 
 fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onText(
@@ -39,6 +36,19 @@ fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, 
 ) { it.content.text == "/$command" && filter(it) }
 
 @OptIn(PreviewFeature::class)
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onDeepLink(
+    handler: Handler<BS, BU, S, U, Pair<TextMessage, String>>
+) = add(
+    Trigger(handler) {
+        val message =
+            asBaseSentMessageUpdate()?.data?.commonMessageOrNull()?.withContent<TextContent>() ?: return@Trigger null
+        val tokens = message.content.text.split(' ').takeIf { it.size == 2 } ?: return@Trigger null
+        if (tokens.first() != "/start") return@Trigger null
+        (message to tokens.last())
+    }
+)
+
+@OptIn(PreviewFeature::class)
 private inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any, reified T : MessageContent> StateFilterBuilder<BS, BU, S, U, K>.onCommonMessage(
     noinline handler: Handler<BS, BU, S, U, CommonMessage<T>>,
     botCommand: BotCommand? = null,
@@ -48,4 +58,3 @@ private inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any, reified T : Mes
         asBaseSentMessageUpdate()?.data?.commonMessageOrNull()?.withContent<T>()?.takeIf(filter)
     }
 )
-
