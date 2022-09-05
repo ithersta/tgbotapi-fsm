@@ -13,12 +13,12 @@ open class MenuBuilder<BS : Any, BU : Any, U : BU>(protected val messageText: St
         entries.add(SubmenuBuilder<BS, BU, U>(text, messageText, state, this.state).apply(block).build())
     }
 
-    fun button(text: String, state: BS) {
-        button(text) { setState(state) }
+    fun button(text: String, state: BS, description: String? = null) {
+        button(text, description) { setState(state) }
     }
 
-    fun button(text: String, handler: Handler<BS, BU, *, U, TextMessage>) {
-        entries.add(MenuButton(text, handler))
+    fun button(text: String, description: String? = null, handler: Handler<BS, BU, *, U, TextMessage>) {
+        entries.add(MenuButton(text, description, handler))
     }
 
     open fun build(): Menu<BS, BU, U> {

@@ -30,7 +30,7 @@ private val stateMachine = stateMachine<DialogState, User>(
         }
     }
     role<EmptyUser> {
-        menu("Меню куратора", MenuStates.Main) {
+        val menu = menu("Меню куратора", MenuStates.Main) {
             submenu("Разослать информацию", "Выберите получателей", MenuStates.SendInfo) {
                 button("Все", SendStates.ToAll)
                 button("Треккеры", SendStates.ToTrackers)
@@ -38,7 +38,7 @@ private val stateMachine = stateMachine<DialogState, User>(
                 backButton("Назад")
             }
             submenu("Получить статистику", "Какую?", MenuStates.GetStats) {
-                button("Выгрузить прогресс команд", GetStatsStates.Teams)
+                button("Выгрузить прогресс команд", GetStatsStates.Teams, description = "Описание")
                 button("Выгрузить прогресс треккеров") {
                     sendTextMessage(it.chat, "Кнопка без состояния")
                 }
@@ -51,6 +51,7 @@ private val stateMachine = stateMachine<DialogState, User>(
             }
             button("Выгрузить протоколы встреч", GetProtocolsState)
         }
+        println(menu.descriptions)
         state<EmptyState> {
             onTransition { sendTextMessage(it, "Empty state. You're $user") }
             onCommand("start", "register") { setState(WaitingForName) }

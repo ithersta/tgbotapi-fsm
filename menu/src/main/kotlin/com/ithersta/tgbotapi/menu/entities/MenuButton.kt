@@ -5,5 +5,6 @@ import dev.inmo.tgbotapi.types.message.content.TextMessage
 
 class MenuButton<BS : Any, BU : Any, U : BU>(
     override val text: String,
+    val description: String?,
     override val handler: Handler<BS, BU, *, U, TextMessage>
 ) : MenuEntry<BS, BU, U>
