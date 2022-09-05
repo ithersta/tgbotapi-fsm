@@ -26,7 +26,7 @@ open class MenuBuilder<BS : Any, BU : Any, U : BU>(protected val messageText: St
     }
 }
 
-fun <BS : Any, BU : Any, U : BU> createMenu(
+fun <BS : Any, BU : Any, U : BU> menu(
     messageText: String,
     state: BS,
     block: MenuBuilder<BS, BU, U>.() -> Unit

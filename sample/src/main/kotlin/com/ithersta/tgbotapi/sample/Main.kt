@@ -5,7 +5,7 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.fsm.entities.triggers.onText
 import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
-import com.ithersta.tgbotapi.menu.menu
+import com.ithersta.tgbotapi.menu.builders.menu
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
@@ -30,7 +30,7 @@ private val stateMachine = stateMachine<DialogState, User>(
         }
     }
     role<EmptyUser> {
-        val menu = menu("Меню куратора", MenuStates.Main) {
+        val emptyMenu = menu<DialogState, User, EmptyUser>("Меню куратора", MenuStates.Main) {
             submenu("Разослать информацию", "Выберите получателей", MenuStates.SendInfo) {
                 button("Все", SendStates.ToAll)
                 button("Треккеры", SendStates.ToTrackers)
@@ -51,7 +51,8 @@ private val stateMachine = stateMachine<DialogState, User>(
             }
             button("Выгрузить протоколы встреч", GetProtocolsState)
         }
-        println(menu.descriptions)
+        with(emptyMenu) { invoke() }
+        println(emptyMenu.descriptions)
         state<EmptyState> {
             onTransition { sendTextMessage(it, "Empty state. You're $user") }
             onCommand("start", "register") { setState(WaitingForName) }
