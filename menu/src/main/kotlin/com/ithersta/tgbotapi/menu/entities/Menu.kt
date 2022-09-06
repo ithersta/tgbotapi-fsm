@@ -21,7 +21,7 @@ open class Menu<BS : Any, BU : Any, U : BU>(
             is Submenu -> it.flattenedEntries
         }
     }
-    val submenus = flattenedEntries.filterIsInstance<Submenu<BS, BU, U>>()
+    val submenus by lazy { listOf(this) + flattenedEntries.filterIsInstance<Submenu<BS, BU, U>>() }
     val buttons by lazy { flattenedEntries.filterIsInstance<MenuButton<BS, BU, U>>() }
     val descriptions by lazy { buttons.mapNotNull { it.description } }
 
