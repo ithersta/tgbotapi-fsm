@@ -15,13 +15,13 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "com.ithersta.tgbotapi"
-            artifactId = "tgbotapi-menu"
+            artifactId = "tgbotapi-pagination"
             version = version
 
             from(components["java"])
 
             pom {
-                name.set("Telegram Bot API Menu DSL")
+                name.set("Telegram Bot API Pagination DSL")
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
