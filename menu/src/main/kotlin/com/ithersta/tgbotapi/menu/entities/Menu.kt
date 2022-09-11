@@ -16,8 +16,8 @@ open class Menu<BS : Any, BU : Any, U : BU>(
     val entries: List<MenuEntry<BS, BU, U>>
 ) {
     val flattenedEntries: List<MenuEntry<BS, BU, U>> = entries.flatMap {
-        when (it) {
-            is MenuButton -> listOf(it)
+        listOf(it) + when (it) {
+            is MenuButton -> emptyList()
             is Submenu -> it.flattenedEntries
         }
     }

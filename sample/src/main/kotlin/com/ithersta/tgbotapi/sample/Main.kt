@@ -6,13 +6,19 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.onText
 import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.menu.builders.menu
+import com.ithersta.tgbotapi.pagination.inlineKeyboardPager
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
+import dev.inmo.tgbotapi.extensions.utils.types.buttons.row
 
 sealed interface User
 object Admin : User
 object EmptyUser : User
+
+val strings = (1..100).map { it.toString() }
 
 private val stateMachine = stateMachine<DialogState, User>(
     getUser = { EmptyUser },
@@ -30,6 +36,21 @@ private val stateMachine = stateMachine<DialogState, User>(
         }
     }
     role<EmptyUser> {
+        val pager = inlineKeyboardPager("sample") { offset, limit ->
+            inlineKeyboard {
+                strings.asSequence().drop(offset).take(limit).forEach {
+                    row {
+                        dataButton(it, "w")
+                    }
+                }
+                navigationRow(strings.size)
+            }
+        }
+        anyState {
+            onCommand("pager", null) {
+                sendTextMessage(it.chat, "pager", replyMarkup = pager.firstPage)
+            }
+        }
         val emptyMenu = menu<DialogState, User, EmptyUser>("Меню куратора", MenuStates.Main) {
             submenu("Разослать информацию", "Выберите получателей", MenuStates.SendInfo) {
                 button("Все", SendStates.ToAll)
