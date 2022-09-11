@@ -33,7 +33,11 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
                 if (includeHelp && tryHandlingHelp(update) { commands(user) }) {
                     return@runCatching
                 }
-                handler(update, user, state)?.invoke(bot, { setState(key, it) }, { refreshCommands(key) })
+                handler(update, user, state)?.invoke(
+                    bot,
+                    { setState(key, it) },
+                    { setStateQuiet(key, it) },
+                    { refreshCommands(key) })
             }.onFailure {
                 exceptionHandler?.invoke(bot, key, it)
             }
@@ -41,11 +45,15 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
     }
 
     suspend fun RequestsExecutor.setState(key: K, state: BS) {
+        setStateQuiet(key, state)
         val user = getUser(key)
-        stateRepository.set(key, state)
         onStateChangedHandlers(user, state).forEach { handler ->
-            handler(this, key, { setState(key, it) }, { refreshCommands(key) })
+            handler(this, key, { setState(key, it) }, { setStateQuiet(key, it) }, { refreshCommands(key) })
         }
+    }
+
+    fun setStateQuiet(key: K, state: BS) {
+        stateRepository.set(key, state)
     }
 
     private suspend fun RequestsExecutor.refreshCommands(key: K) {

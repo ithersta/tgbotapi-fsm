@@ -19,7 +19,7 @@ private const val PREFIX = "com.ithersta.tgbotapi.pagination"
 @OptIn(PreviewFeature::class)
 class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
     private val id: String,
-    private val limit: Int,
+    private val limit: Int = 5,
     private val block: context(BaseStatefulContext<BS, BU, *, U>, Builder)(offset: Int, limit: Int) -> InlineKeyboardMarkup
 ) {
     context(BaseStatefulContext<BS, BU, *, U>)
@@ -39,7 +39,8 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
                 val message = it.asMessageCallbackQuery()?.message ?: return@onDataCallbackQuery
                 try {
                     editMessageReplyMarkup(message, inlineKeyboardMarkup)
-                } catch (_: CommonBotException) { }
+                } catch (_: CommonBotException) {
+                }
                 answer(it)
             }
         }
@@ -47,18 +48,21 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
 
     class Builder(private val page: Int, private val limit: Int, private val id: String) {
         context(InlineKeyboardBuilder)
-        fun navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") = row {
+        fun navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") {
             val maxPage = itemCount / limit
-            if (page != 0) {
-                dataButton(previous, "$PREFIX $id page ${page - 1}")
-            } else {
-                dataButton(" ", "$PREFIX $id")
-            }
-            dataButton("${page + 1}/${maxPage + 1}", "$PREFIX $id")
-            if (page != maxPage) {
-                dataButton(next, "$PREFIX $id page ${page + 1}")
-            } else {
-                dataButton(" ", "$PREFIX $id")
+            if (maxPage == 0 && page == 0) return
+            row {
+                if (page != 0) {
+                    dataButton(previous, "$PREFIX $id page ${page - 1}")
+                } else {
+                    dataButton(" ", "$PREFIX $id")
+                }
+                dataButton("${page + 1}/${maxPage + 1}", "$PREFIX $id page $page")
+                if (page != maxPage) {
+                    dataButton(next, "$PREFIX $id page ${page + 1}")
+                } else {
+                    dataButton(" ", "$PREFIX $id")
+                }
             }
         }
     }
@@ -66,7 +70,7 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
 
 fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.inlineKeyboardPager(
     id: String,
-    limit: Int = 8,
+    limit: Int = 5,
     block: context(BaseStatefulContext<BS, BU, *, U>, InlineKeyboardPager.Builder) (offset: Int, limit: Int) -> InlineKeyboardMarkup
 ): InlineKeyboardPager<BS, BU, U> {
     return InlineKeyboardPager(id, limit, block).also {

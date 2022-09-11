@@ -6,6 +6,7 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.onText
 import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.menu.builders.menu
+import com.ithersta.tgbotapi.pagination.InlineKeyboardPager
 import com.ithersta.tgbotapi.pagination.inlineKeyboardPager
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
