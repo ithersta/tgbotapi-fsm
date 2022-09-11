@@ -52,14 +52,14 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
             val maxPage = itemCount / limit
             if (maxPage == 0 && page == 0) return
             row {
-                if (page != 0) {
-                    dataButton(previous, "$PREFIX $id page ${page - 1}")
+                if (page > 0) {
+                    dataButton(previous, "$PREFIX $id page ${(page - 1).coerceAtLeast(0)}")
                 } else {
                     dataButton(" ", "$PREFIX $id")
                 }
-                dataButton("${page + 1}/${maxPage + 1}", "$PREFIX $id page $page")
-                if (page != maxPage) {
-                    dataButton(next, "$PREFIX $id page ${page + 1}")
+                dataButton("${page + 1}/${maxPage + 1}", "$PREFIX $id page ${page.coerceIn(0, maxPage)}")
+                if (page < maxPage) {
+                    dataButton(next, "$PREFIX $id page ${(page + 1).coerceAtMost(maxPage)}")
                 } else {
                     dataButton(" ", "$PREFIX $id")
                 }
