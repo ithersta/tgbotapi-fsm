@@ -5,9 +5,9 @@ import dev.inmo.tgbotapi.types.update.abstracts.Update
 
 class StatefulContext<BS : Any, BU : Any, S : BS, U : BU>(
     requestsExecutor: RequestsExecutor,
-    val state: S,
-    val setState: suspend (BS) -> Unit,
-    val refreshCommands: suspend () -> Unit,
+    override val state: S,
+    override val setState: suspend (BS) -> Unit,
+    override val refreshCommands: suspend () -> Unit,
     val update: Update,
-    val user: U
-) : RequestsExecutor by requestsExecutor
+    override val user: U
+) : RequestsExecutor by requestsExecutor, BaseStatefulContext<BS, BU, S, U>

@@ -1,6 +1,6 @@
 package com.ithersta.tgbotapi.pagination
 
-import com.ithersta.tgbotapi.fsm.StatefulContext
+import com.ithersta.tgbotapi.fsm.BaseStatefulContext
 import com.ithersta.tgbotapi.fsm.builders.RoleFilterBuilder
 import com.ithersta.tgbotapi.fsm.entities.triggers.onDataCallbackQuery
 import dev.inmo.tgbotapi.bot.exceptions.CommonBotException
@@ -20,11 +20,11 @@ private const val PREFIX = "com.ithersta.tgbotapi.pagination"
 class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
     private val id: String,
     private val limit: Int,
-    private val block: context(StatefulContext<BS, BU, BS, U>, Builder)(offset: Int, limit: Int) -> InlineKeyboardMarkup
+    private val block: context(BaseStatefulContext<BS, BU, *, U>, Builder)(offset: Int, limit: Int) -> InlineKeyboardMarkup
 ) {
-    context(StatefulContext<BS, BU, BS, U>)
+    context(BaseStatefulContext<BS, BU, *, U>)
     val firstPage
-        get() = block(this@StatefulContext, Builder(0, limit, id), 0, limit)
+        get() = block(this@BaseStatefulContext, Builder(0, limit, id), 0, limit)
 
     context(RoleFilterBuilder<BS, BU, U, UserId>)
     fun setupTriggers() {
@@ -67,7 +67,7 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
 fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.inlineKeyboardPager(
     id: String,
     limit: Int = 8,
-    block: context(StatefulContext<BS, BU, BS, U>, InlineKeyboardPager.Builder) (offset: Int, limit: Int) -> InlineKeyboardMarkup
+    block: context(BaseStatefulContext<BS, BU, *, U>, InlineKeyboardPager.Builder) (offset: Int, limit: Int) -> InlineKeyboardMarkup
 ): InlineKeyboardPager<BS, BU, U> {
     return InlineKeyboardPager(id, limit, block).also {
         it.setupTriggers()
