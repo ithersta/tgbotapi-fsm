@@ -17,18 +17,15 @@ const val PREFIX = "com.ithersta.tgbotapi.pagination"
 class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
     private val id: String,
     private val limit: Int = 5,
-    private val block: context(PagerBuilder) BaseStatefulContext<BS, BU, *, U>.() -> InlineKeyboardMarkup
+    private val block: PagerBuilder<BS, BU, *, U>.() -> InlineKeyboardMarkup
 ) {
-    context(BaseStatefulContext<BS, BU, *, U>)
-    val firstPage get() =
-        block(PagerBuilder(0, 0, limit, id), this@BaseStatefulContext)
+    val BaseStatefulContext<BS, BU, *, U>.firstPage
+        get() = page(0)
 
-    context(BaseStatefulContext<BS, BU, *, U>)
-    fun page(index: Int) =
-        block(PagerBuilder(index, index * limit, limit, id), this@BaseStatefulContext)
+    fun BaseStatefulContext<BS, BU, *, U>.page(index: Int) =
+        block(PagerBuilder(index, index * limit, limit, id, this))
 
-    context(RoleFilterBuilder<BS, BU, U, UserId>)
-    fun setupTriggers() {
+    fun RoleFilterBuilder<BS, BU, U, UserId>.setupTriggers() {
         anyState {
             onDataCallbackQuery(Regex("$PREFIX $id")) {
                 answer(it)
@@ -49,9 +46,9 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
 fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.inlineKeyboardPager(
     id: String,
     limit: Int = 5,
-    block: context(PagerBuilder) BaseStatefulContext<BS, BU, *, U>.() -> InlineKeyboardMarkup
+    block: PagerBuilder<BS, BU, *, U>.() -> InlineKeyboardMarkup
 ): InlineKeyboardPager<BS, BU, U> {
     return InlineKeyboardPager(id, limit, block).also {
-        it.setupTriggers()
+        with(it) { setupTriggers() }
     }
 }
