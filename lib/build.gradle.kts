@@ -7,6 +7,7 @@ plugins {
 version = libs.versions.tgbotapi.fsm.get()
 
 dependencies {
+    implementation(libs.kotlinx.serialization)
     api(libs.inmo.tgbotapi)
     api(libs.koin.core)
 }

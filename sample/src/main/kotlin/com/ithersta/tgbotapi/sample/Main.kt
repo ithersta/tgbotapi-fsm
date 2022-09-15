@@ -1,9 +1,7 @@
 package com.ithersta.tgbotapi.sample
 
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
-import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
-import com.ithersta.tgbotapi.fsm.entities.triggers.onText
-import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
+import com.ithersta.tgbotapi.fsm.entities.triggers.*
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.menu.builders.menu
 import com.ithersta.tgbotapi.pagination.PagerState
@@ -44,7 +42,7 @@ private val stateMachine = stateMachine<DialogState, User>(
                 inlineKeyboard {
                     strings.asSequence().drop(offset).take(limit).forEach {
                         row {
-                            dataButton(it, "w")
+                            dataButton(it, TestQuery("test name $it"))
                         }
                     }
                     navigationRow(strings.size)
@@ -57,6 +55,9 @@ private val stateMachine = stateMachine<DialogState, User>(
         anyState {
             onCommand("pager", null) {
                 setState(Pager(PagerState()))
+            }
+            onDataCallbackQuery(TestQuery::class) { (data, query) ->
+                sendTextMessage(query.from, data.name)
             }
         }
         val emptyMenu = menu<DialogState, User, EmptyUser>("Меню куратора", MenuStates.Main) {

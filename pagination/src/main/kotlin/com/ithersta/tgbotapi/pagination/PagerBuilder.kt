@@ -7,7 +7,7 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.row
 class PagerBuilder(private val page: Int, private val limit: Int, private val id: String) {
     context(InlineKeyboardBuilder)
     fun navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") {
-        val maxPage = itemCount / limit
+        val maxPage = ((itemCount - 1) / limit).coerceAtLeast(0)
         if (maxPage == 0 && page == 0) return
         row {
             if (page > 0) {
