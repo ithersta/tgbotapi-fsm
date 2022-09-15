@@ -17,11 +17,15 @@ const val PREFIX = "com.ithersta.tgbotapi.pagination"
 class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
     private val id: String,
     private val limit: Int = 5,
-    private val block: context(PagerBuilder) BaseStatefulContext<BS, BU, *, U>.(offset: Int, limit: Int) -> InlineKeyboardMarkup
+    private val block: context(PagerBuilder) BaseStatefulContext<BS, BU, *, U>.() -> InlineKeyboardMarkup
 ) {
     context(BaseStatefulContext<BS, BU, *, U>)
-    val firstPage
-        get() = block(PagerBuilder(0, limit, id), this@BaseStatefulContext, 0, limit)
+    val firstPage get() =
+        block(PagerBuilder(0, 0, limit, id), this@BaseStatefulContext)
+
+    context(BaseStatefulContext<BS, BU, *, U>)
+    fun page(index: Int) =
+        block(PagerBuilder(index, index * limit, limit, id), this@BaseStatefulContext)
 
     context(RoleFilterBuilder<BS, BU, U, UserId>)
     fun setupTriggers() {
@@ -30,12 +34,10 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
                 answer(it)
             }
             onDataCallbackQuery(Regex("$PREFIX $id page \\d+")) {
-                val page = it.data.split(" ").last().toInt()
-                val offset = page * limit
-                val inlineKeyboardMarkup = block(PagerBuilder(page, limit, id), this, offset, limit)
+                val pageIndex = it.data.split(" ").last().toInt()
                 val message = it.asMessageCallbackQuery()?.message ?: return@onDataCallbackQuery
                 try {
-                    editMessageReplyMarkup(message, inlineKeyboardMarkup)
+                    editMessageReplyMarkup(message, page(pageIndex))
                 } catch (_: CommonBotException) {
                 }
                 answer(it)
@@ -47,7 +49,7 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
 fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.inlineKeyboardPager(
     id: String,
     limit: Int = 5,
-    block: context(PagerBuilder) BaseStatefulContext<BS, BU, *, U>.(offset: Int, limit: Int) -> InlineKeyboardMarkup
+    block: context(PagerBuilder) BaseStatefulContext<BS, BU, *, U>.() -> InlineKeyboardMarkup
 ): InlineKeyboardPager<BS, BU, U> {
     return InlineKeyboardPager(id, limit, block).also {
         it.setupTriggers()

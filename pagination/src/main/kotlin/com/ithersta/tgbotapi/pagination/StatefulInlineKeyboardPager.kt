@@ -25,13 +25,13 @@ class StatefulInlineKeyboardPager<BS : Any, BU : Any, S : BS, U : BU>(
     private val id: String,
     private val limit: Int = 5,
     private val onPagerStateChanged: BaseStatefulContext<BS, BU, S, U>.(PagerState) -> BS,
-    private val block: context(PagerBuilder) BaseStatefulContext<BS, BU, S, U>.(offset: Int, limit: Int) -> InlineKeyboardMarkup
+    private val block: context(PagerBuilder) BaseStatefulContext<BS, BU, S, U>.() -> InlineKeyboardMarkup
 ) {
     context(BaseStatefulContext<BS, BU, S, U>)
     suspend fun sendOrEditMessage(chatId: ChatId, text: String, pagerState: PagerState) {
         val page = pagerState.page
         val offset = page * limit
-        val inlineKeyboard = block(PagerBuilder(page, limit, id), this@BaseStatefulContext, offset, limit)
+        val inlineKeyboard = block(PagerBuilder(page, offset, limit, id), this@BaseStatefulContext)
         if (pagerState.messageId == null) {
             val messageId = sendTextMessage(chatId, text, replyMarkup = inlineKeyboard).messageId
             setStateQuiet(onPagerStateChanged(this@BaseStatefulContext, PagerState(pagerState.page, messageId)))
@@ -62,7 +62,7 @@ fun <BS : Any, BU : Any, S : BS, U : BU> StateFilterBuilder<BS, BU, S, U, UserId
     id: String,
     limit: Int = 5,
     onPagerStateChanged: BaseStatefulContext<BS, BU, S, U>.(PagerState) -> BS,
-    block: context(PagerBuilder) BaseStatefulContext<BS, BU, S, U>.(offset: Int, limit: Int) -> InlineKeyboardMarkup
+    block: context(PagerBuilder) BaseStatefulContext<BS, BU, S, U>.() -> InlineKeyboardMarkup
 ): StatefulInlineKeyboardPager<BS, BU, S, U> {
     return StatefulInlineKeyboardPager(id, limit, onPagerStateChanged, block).also {
         it.setupTriggers()
