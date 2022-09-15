@@ -37,18 +37,20 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
                     bot,
                     { setState(key, it) },
                     { setStateQuiet(key, it) },
-                    { refreshCommands(key) })
+                    { refreshCommands(key) },
+                    this
+                )
             }.onFailure {
                 exceptionHandler?.invoke(bot, key, it)
             }
         }
     }
 
-    suspend fun RequestsExecutor.setState(key: K, state: BS) {
+    suspend fun BehaviourContext.setState(key: K, state: BS) {
         setStateQuiet(key, state)
         val user = getUser(key)
         onStateChangedHandlers(user, state).forEach { handler ->
-            handler(this, key, { setState(key, it) }, { setStateQuiet(key, it) }, { refreshCommands(key) })
+            handler(this, key, { setState(key, it) }, { setStateQuiet(key, it) }, { refreshCommands(key) }, this)
         }
     }
 

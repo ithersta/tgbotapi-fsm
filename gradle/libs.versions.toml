@@ -1,5 +1,5 @@
 [versions]
-tgbotapi-fsm = "0.15.0"
+tgbotapi-fsm = "0.15.1"
 tgbotapi-pagination = "0.15.2"
 inmo-tgbotapi = "3.2.0"
 koin = "3.2.0"

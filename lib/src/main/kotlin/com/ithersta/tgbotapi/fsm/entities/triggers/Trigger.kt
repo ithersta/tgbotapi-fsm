@@ -4,8 +4,9 @@ import com.ithersta.tgbotapi.fsm.StatefulContext
 import dev.inmo.tgbotapi.bot.RequestsExecutor
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.update.abstracts.Update
+import kotlinx.coroutines.CoroutineScope
 
-typealias AppliedHandler<BS> = suspend (RequestsExecutor, suspend (BS) -> Unit, (BS) -> Unit, suspend () -> Unit) -> Unit
+typealias AppliedHandler<BS> = suspend (RequestsExecutor, suspend (BS) -> Unit, (BS) -> Unit, suspend () -> Unit, CoroutineScope) -> Unit
 typealias Handler<BS, BU, S, U, D> = suspend StatefulContext<BS, BU, S, U>.(D) -> Unit
 
 class Trigger<BS : Any, BU : Any, S : BS, U : BU, D>(
@@ -15,7 +16,7 @@ class Trigger<BS : Any, BU : Any, S : BS, U : BU, D>(
 ) {
     fun handler(update: Update, state: S, user: U): AppliedHandler<BS>? {
         val data = update.toData() ?: return null
-        return { requestsExecutor, setState, setStateQuiet, refreshCommands ->
+        return { requestsExecutor, setState, setStateQuiet, refreshCommands, coroutineScope ->
             StatefulContext<BS, BU, S, U>(
                 requestsExecutor,
                 state,
@@ -23,7 +24,8 @@ class Trigger<BS : Any, BU : Any, S : BS, U : BU, D>(
                 setStateQuiet,
                 refreshCommands,
                 update,
-                user
+                user,
+                coroutineScope
             ).handler(data)
         }
     }

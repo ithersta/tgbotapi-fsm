@@ -38,7 +38,7 @@ private val stateMachine = stateMachine<DialogState, User>(
         state<Pager> {
             val pager = statefulInlineKeyboardPager("sample",
                 onPagerStateChanged = { state.copy(pagerState = it) }
-            ) { offset, limit ->
+            ) {
                 inlineKeyboard {
                     strings.asSequence().drop(offset).take(limit).forEach {
                         row {
