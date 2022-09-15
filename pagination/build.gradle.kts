@@ -1,10 +1,11 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
     `java-library`
     `maven-publish`
 }
 
-version = libs.versions.tgbotapi.fsm.get()
+version = libs.versions.tgbotapi.pagination.get()
 
 dependencies {
     api(libs.tgbotapi.fsm)

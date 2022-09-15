@@ -1,5 +1,7 @@
 package com.ithersta.tgbotapi.sample
 
+import com.ithersta.tgbotapi.pagination.PagerState
+
 sealed interface DialogState
 object EmptyState : DialogState
 object WaitingForName : DialogState
@@ -30,3 +32,7 @@ object AddUsersStates {
 }
 
 object GetProtocolsState : DialogState
+
+data class Pager(
+    val pagerState: PagerState
+) : DialogState

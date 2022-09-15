@@ -6,8 +6,8 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.onText
 import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.menu.builders.menu
-import com.ithersta.tgbotapi.pagination.InlineKeyboardPager
-import com.ithersta.tgbotapi.pagination.inlineKeyboardPager
+import com.ithersta.tgbotapi.pagination.PagerState
+import com.ithersta.tgbotapi.pagination.statefulInlineKeyboardPager
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
@@ -37,19 +37,26 @@ private val stateMachine = stateMachine<DialogState, User>(
         }
     }
     role<EmptyUser> {
-        val pager = inlineKeyboardPager("sample") { offset, limit ->
-            inlineKeyboard {
-                strings.asSequence().drop(offset).take(limit).forEach {
-                    row {
-                        dataButton(it, "w")
+        state<Pager> {
+            val pager = statefulInlineKeyboardPager("sample",
+                onPagerStateChanged = { state.copy(pagerState = it) }
+            ) { offset, limit ->
+                inlineKeyboard {
+                    strings.asSequence().drop(offset).take(limit).forEach {
+                        row {
+                            dataButton(it, "w")
+                        }
                     }
+                    navigationRow(strings.size)
                 }
-                navigationRow(strings.size)
+            }
+            onTransition {
+                pager.sendOrEditMessage(it, "pager", state.pagerState)
             }
         }
         anyState {
             onCommand("pager", null) {
-                sendTextMessage(it.chat, "pager", replyMarkup = pager.firstPage)
+                setState(Pager(PagerState()))
             }
         }
         val emptyMenu = menu<DialogState, User, EmptyUser>("Меню куратора", MenuStates.Main) {
