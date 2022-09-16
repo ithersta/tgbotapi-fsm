@@ -49,7 +49,7 @@ private val stateMachine = stateMachine<DialogState, User>(
                 }
             }
             onTransition {
-                pager.sendOrEditMessage(it, "pager", state.pagerState)
+                with(pager) { sendOrEditMessage(it, "pager", state.pagerState) }
             }
         }
         anyState {

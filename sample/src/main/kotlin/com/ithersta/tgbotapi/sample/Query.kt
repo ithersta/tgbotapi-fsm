@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 sealed interface Query
 
 @Serializable
-@SerialName("TestQuery")
+@SerialName("q")
 class TestQuery(val name: String) : Query
