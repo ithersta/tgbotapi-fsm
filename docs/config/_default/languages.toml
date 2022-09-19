@@ -1,0 +1,7 @@
+[ru]
+  languageName = "Russian"
+  contentDir = "content/ru"
+  weight = 10
+  [ru.params]
+    languageISO = "RU"
+    languageTag = "ru-RU"
