@@ -3,5 +3,5 @@
   "extends": [
     "config:base"
   ],
-  "excludeCommitPaths": ["docs/**"]
+  "ignorePaths": ["docs/**"]
 }
