@@ -8,9 +8,6 @@ draft: false
 images: []
 weight: 210
 toc: true
-menu:
-  docs:
-    parent: "menu"
 ---
 
 ## Get started

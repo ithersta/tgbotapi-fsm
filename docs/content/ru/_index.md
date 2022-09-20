@@ -1,5 +1,5 @@
 ---
-title : "Finite State Machine DSL for Telegram Bot API"
+title : "Finite State Machine DSL для Telegram Bot API"
 description: ""
 lead: ""
 date: 2022-09-20T01:40:00+03:00

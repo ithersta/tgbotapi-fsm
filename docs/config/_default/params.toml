@@ -3,8 +3,8 @@
 ## Homepage
 title = "FSM Telegram DSL"
 titleSeparator = "-"
-titleAddition = "Finite State Machine DSL for Telegram Bot API"
-description = "Doks is a Hugo theme for building secure, fast, and SEO-ready documentation websites, which you can easily update and customize."
+titleAddition = "Finite State Machine DSL для Telegram Bot API"
+description = ""
 
 ## Documentation
 # docsVersion = "0.3"
@@ -111,4 +111,4 @@ lastMod = false
 [menu]
   [menu.section]
     auto = true
-    collapsibleSidebar = true
+    collapsibleSidebar = false

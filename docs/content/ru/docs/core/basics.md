@@ -8,9 +8,6 @@ draft: false
 images: []
 weight: 040
 toc: true
-menu:
-  docs:
-    parent: "core"
 ---
 
 ## Get started
