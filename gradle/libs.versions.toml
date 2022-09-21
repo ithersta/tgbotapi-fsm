@@ -2,7 +2,7 @@
 tgbotapi-fsm = "0.16.0"
 tgbotapi-pagination = "0.16.0"
 inmo-tgbotapi = "3.2.6"
-koin = "3.2.0"
+koin = "3.2.1"
 
 [libraries]
 inmo-tgbotapi = { module = "dev.inmo:tgbotapi", version.ref = "inmo-tgbotapi" }
