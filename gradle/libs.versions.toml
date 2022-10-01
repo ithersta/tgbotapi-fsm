@@ -1,7 +1,7 @@
 [versions]
 tgbotapi-fsm = "0.16.0"
 tgbotapi-pagination = "0.16.0"
-inmo-tgbotapi = "3.2.6"
+inmo-tgbotapi = "3.2.7"
 koin = "3.2.2"
 
 [libraries]
