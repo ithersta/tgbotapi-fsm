@@ -26,13 +26,26 @@ class OnStateChangedTrigger<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
 ) {
     fun handler(state: S, user: U): AppliedOnStateChangedHandler<BS, K> {
         return { requestsExecutor, key, setState, setStateQuiet, refreshCommands, coroutineScope ->
-            OnStateChangedContext<BS, BU, _, _>(requestsExecutor, state, setState, setStateQuiet, refreshCommands, user, coroutineScope).handler(key)
+            OnStateChangedContext<BS, BU, _, _>(
+                requestsExecutor,
+                state,
+                setState,
+                setStateQuiet,
+                refreshCommands,
+                user,
+                coroutineScope
+            ).handler(key)
         }
     }
 }
 
-fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onTransition(
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onEnter(
     handler: OnStateChangedHandler<BS, BU, S, U, K>
 ) {
     set(OnStateChangedTrigger(handler))
 }
+
+@Deprecated(message = "onTransition is ambiguous. Use onEnter instead.", replaceWith = ReplaceWith("onEnter(handler)"))
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onTransition(
+    handler: OnStateChangedHandler<BS, BU, S, U, K>
+) = onEnter(handler)
