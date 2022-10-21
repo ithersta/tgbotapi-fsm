@@ -16,7 +16,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "com.ithersta.tgbotapi"
-            artifactId = "tgbotapi-fsm"
+            artifactId = "fsm"
             version = version
 
             from(components["java"])
