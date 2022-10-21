@@ -48,7 +48,7 @@ private val stateMachine = stateMachine<DialogState, User>(
                     navigationRow(strings.size)
                 }
             }
-            onTransition {
+            onEnter {
                 with(pager) { sendOrEditMessage(it, "pager", state.pagerState) }
             }
         }
@@ -84,19 +84,19 @@ private val stateMachine = stateMachine<DialogState, User>(
         with(emptyMenu) { invoke() }
         println(emptyMenu.descriptions)
         state<EmptyState> {
-            onTransition { sendTextMessage(it, "Empty state. You're $user") }
+            onEnter { sendTextMessage(it, "Empty state. You're $user") }
             onCommand("start", "register") { setState(WaitingForName) }
             onCommand("menu", "show menu") { setState(MenuStates.Main) }
         }
         state<WaitingForName> {
-            onTransition {
+            onEnter {
                 refreshCommands()
                 sendTextMessage(it, "What's your name?")
             }
             onText { setState(WaitingForAge(it.content.text)) }
         }
         state<WaitingForAge> {
-            onTransition { sendTextMessage(it, "What's your age?") }
+            onEnter { sendTextMessage(it, "What's your age?") }
             onText { message ->
                 val age = message.content.text.toIntOrNull()?.takeIf { it > 0 } ?: run {
                     sendTextMessage(message.chat, "Invalid age")
@@ -106,7 +106,7 @@ private val stateMachine = stateMachine<DialogState, User>(
             }
         }
         state<WaitingForConfirmation> {
-            onTransition {
+            onEnter {
                 sendTextMessage(it, "Confirm: ${state.name} ${state.age}. Yes/No")
             }
             onText("Yes") {

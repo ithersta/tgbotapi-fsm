@@ -1,8 +1,8 @@
 package com.ithersta.tgbotapi.menu.entities
 
 import com.ithersta.tgbotapi.fsm.builders.RoleFilterBuilder
+import com.ithersta.tgbotapi.fsm.entities.triggers.onEnter
 import com.ithersta.tgbotapi.fsm.entities.triggers.onText
-import com.ithersta.tgbotapi.fsm.entities.triggers.onTransition
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.replyKeyboard
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.simpleButton
@@ -29,7 +29,7 @@ open class Menu<BS : Any, BU : Any, U : BU>(
         submenus.forEach { submenu ->
             state(
                 block = {
-                    onTransition {
+                    onEnter {
                         sendTextMessage(it, submenu.messageText, replyMarkup = replyKeyboard(resizeKeyboard = true) {
                             submenu.entries.forEach { entry ->
                                 row {
