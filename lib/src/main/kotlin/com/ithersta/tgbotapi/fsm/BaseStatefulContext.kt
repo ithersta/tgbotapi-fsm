@@ -12,3 +12,11 @@ interface BaseStatefulContext<BS : Any, BU : Any, S : BS, U : BU> : RequestsExec
     val user: U
     val coroutineScope: CoroutineScope
 }
+
+suspend fun <BS : Any, BU : Any, S : BS, U : BU> BaseStatefulContext<BS, BU, S, U>.setState(transform: S.() -> BS) {
+    setState(transform(state))
+}
+
+fun <BS : Any, BU : Any, S : BS, U : BU> BaseStatefulContext<BS, BU, S, U>.setStateQuiet(transform: S.() -> BS) {
+    setStateQuiet(transform(state))
+}

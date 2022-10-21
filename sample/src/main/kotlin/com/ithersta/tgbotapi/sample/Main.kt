@@ -3,6 +3,7 @@ package com.ithersta.tgbotapi.sample
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
 import com.ithersta.tgbotapi.fsm.entities.triggers.*
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
+import com.ithersta.tgbotapi.fsm.setState
 import com.ithersta.tgbotapi.menu.builders.menu
 import com.ithersta.tgbotapi.pagination.PagerState
 import com.ithersta.tgbotapi.pagination.statefulInlineKeyboardPager
@@ -102,7 +103,7 @@ private val stateMachine = stateMachine<DialogState, User>(
                     sendTextMessage(message.chat, "Invalid age")
                     return@onText
                 }
-                setState(WaitingForConfirmation(state.name, age))
+                setState { WaitingForConfirmation(name, age) }
             }
         }
         state<WaitingForConfirmation> {
