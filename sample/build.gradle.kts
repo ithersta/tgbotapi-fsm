@@ -8,8 +8,6 @@ version = "unspecified"
 
 dependencies {
     implementation(project(":lib"))
-    implementation(project(":menu"))
-    implementation(project(":pagination"))
     implementation(libs.inmo.tgbotapi)
 }
 
