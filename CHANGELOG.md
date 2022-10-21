@@ -4,3 +4,4 @@
 
 ### Changed
 - Deprecate `onTransition`, replace with `onEnter`.
+- Make it impossible to nest triggers.
