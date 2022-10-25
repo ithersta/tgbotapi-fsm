@@ -85,7 +85,7 @@ inline fun <reified BS : Any, BU : Any> stateMachine(
     block = block
 )
 
-inline fun <reified BS : Any, K : Any> rolelessStateMachine(
+inline fun <reified BS : Any> rolelessStateMachine(
     stateRepository: StateRepository<UserId, BS>,
     initialState: BS,
     crossinline block: RoleFilterBuilder<BS, Unit, Unit, UserId>.() -> Unit

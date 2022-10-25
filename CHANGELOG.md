@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.1 (2022-10-25)
+
+### Fixed
+- Remove unused K type argument from `rolelessStateMachine`
+
 ## 0.19.0 (2022-10-25)
 
 ### Added
