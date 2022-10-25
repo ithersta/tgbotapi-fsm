@@ -6,15 +6,15 @@ import com.ithersta.tgbotapi.menu.entities.MenuButton
 import com.ithersta.tgbotapi.menu.entities.MenuEntry
 import dev.inmo.tgbotapi.types.message.content.TextMessage
 
-open class MenuBuilder<BS : Any, BU : Any, U : BU>(protected val messageText: String, protected val state: BS) {
+open class MenuBuilder<BS : Any, BU : Any, U : BU>(protected val messageText: String, protected val targetState: BS) {
     protected val entries = mutableListOf<MenuEntry<BS, BU, U>>()
 
     fun submenu(text: String, messageText: String, state: BS, block: SubmenuBuilder<BS, BU, U>.() -> Unit) {
-        entries.add(SubmenuBuilder<BS, BU, U>(text, messageText, state, this.state).apply(block).build())
+        entries.add(SubmenuBuilder<BS, BU, U>(text, messageText, state, this.targetState).apply(block).build())
     }
 
-    fun button(text: String, state: BS, description: String? = null) {
-        button(text, description) { setState(state) }
+    fun button(text: String, targetState: BS, description: String? = null) {
+        button(text, description) { state.override { targetState } }
     }
 
     fun button(text: String, description: String? = null, handler: Handler<BS, BU, *, U, TextMessage>) {
@@ -22,7 +22,7 @@ open class MenuBuilder<BS : Any, BU : Any, U : BU>(protected val messageText: St
     }
 
     open fun build(): Menu<BS, BU, U> {
-        return Menu(messageText, state, entries)
+        return Menu(messageText, targetState, entries)
     }
 }
 

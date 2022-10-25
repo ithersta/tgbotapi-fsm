@@ -1,5 +1,5 @@
 [versions]
-tgbotapi-fsm = "0.18.0"
+tgbotapi-fsm = "0.19.0"
 inmo-tgbotapi = "3.2.7"
 koin = "3.2.2"
 

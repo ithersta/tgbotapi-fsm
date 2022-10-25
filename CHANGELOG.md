@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.0 (UNRELEASED)
+
+### Added
+- Nested state machines
+
 ## 0.18.0 (2022-10-21)
 
 ### Added

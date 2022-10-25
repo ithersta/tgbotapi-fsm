@@ -43,9 +43,10 @@ class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
         getKey: (Update) -> K?,
         getUser: (K) -> BU,
         getScope: (K) -> BotCommandScope,
-        stateRepository: StateRepository<K, BS>
+        stateRepository: StateRepository<K, BS>,
+        initialState: BS
     ): StateMachine<BS, BU, K> {
-        return StateMachine(filters, includeHelp, getKey, getUser, getScope, stateRepository, exceptionHandler)
+        return StateMachine(filters, includeHelp, getKey, getUser, getScope, stateRepository, initialState, exceptionHandler)
     }
 }
 
@@ -54,20 +55,23 @@ inline fun <reified BS : Any, BU : Any, K : Any> stateMachine(
     noinline getUser: (K) -> BU,
     noinline getScope: (K) -> BotCommandScope,
     stateRepository: StateRepository<K, BS>,
+    initialState: BS,
     block: StateMachineBuilder<BS, BU, K>.() -> Unit
 ) = StateMachineBuilder<BS, BU, K>()
     .apply(block)
-    .build(getKey, getUser, getScope, stateRepository)
+    .build(getKey, getUser, getScope, stateRepository, initialState)
 
 @OptIn(PreviewFeature::class)
 inline fun <reified BS : Any, BU : Any> stateMachine(
     noinline getUser: (UserId) -> BU,
     stateRepository: StateRepository<UserId, BS>,
+    initialState: BS,
     block: StateMachineBuilder<BS, BU, UserId>.() -> Unit
 ) = stateMachine(
     getKey = { it.data.fromUserOrNull()?.from?.id },
     getScope = { BotCommandScope.Chat(it) },
     getUser = getUser,
     stateRepository = stateRepository,
+    initialState = initialState,
     block = block
 )
