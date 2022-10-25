@@ -22,6 +22,7 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
     private val getUser: (K) -> BU,
     private val getScope: (K) -> BotCommandScope,
     private val stateRepository: StateRepository<K, BS>,
+    private val initialState: BS,
     private val exceptionHandler: ExceptionHandler<K>?
 ) {
     fun BehaviourContext.collect() {
@@ -29,14 +30,13 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
             val key = getKey(update) ?: return@subscribeSafelyWithoutExceptionsAsync
             runCatching {
                 val user = getUser(key)
-                val state = stateRepository.get(key)
                 if (includeHelp && tryHandlingHelp(update) { commands(user) }) {
                     return@runCatching
                 }
-                handler(update, user, state)?.invoke(
+                val stateStack = getStateStack(key)
+                val stateHolder = StateHolder<BS>(stateStack, key)
+                handler(update, user, stateHolder)?.invoke(
                     bot,
-                    { setState(key, it) },
-                    { setStateQuiet(key, it) },
                     { refreshCommands(key) },
                     this
                 )
@@ -46,35 +46,54 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
         }
     }
 
-    suspend fun BehaviourContext.setState(key: K, state: BS) {
-        setStateQuiet(key, state)
-        val user = getUser(key)
-        onStateChangedHandlers(user, state).forEach { handler ->
-            handler(this, key, { setState(key, it) }, { setStateQuiet(key, it) }, { refreshCommands(key) }, this)
-        }
-    }
-
-    fun setStateQuiet(key: K, state: BS) {
-        stateRepository.set(key, state)
-    }
-
     private suspend fun RequestsExecutor.refreshCommands(key: K) {
         @Suppress("DeferredResultUnused")
         executeAsync(SetMyCommands(commands(getUser(key)), getScope(key)))
     }
 
-    private fun handler(update: Update, user: BU, state: BS): AppliedHandler<BS>? {
-        return filters.firstNotNullOfOrNull { it.handler(user, update, state) }
+    private fun handler(update: Update, user: BU, stateHolder: StateHolder<BS>): AppliedHandler? {
+        return filters.firstNotNullOfOrNull { it.handler(user, update, stateHolder) }
     }
 
-    private fun onStateChangedHandlers(
-        user: BU,
-        state: BS
-    ): List<AppliedOnStateChangedHandler<BS, K>> {
-        return filters.flatMap { it.onStateChangedHandlers(user, state) }
+    private fun onStateChangedHandlers(user: BU, stateHolder: StateHolder<BS>): List<AppliedOnStateChangedHandler<K>> {
+        return filters.flatMap { it.onStateChangedHandlers(user, stateHolder) }
     }
 
     private fun commands(user: BU): List<BotCommand> {
         return filters.flatMap { it.commands(user) }
+    }
+
+    private fun getStateStack(key: K): List<BS> {
+        return stateRepository.get(key) ?: listOf(initialState)
+    }
+
+    private suspend fun BehaviourContext.setStateStack(key: K, stateStack: List<BS>) {
+        stateRepository.set(key, stateStack)
+        val user = getUser(key)
+        val stateHolder = StateHolder<BS>(stateStack, key)
+        onStateChangedHandlers(user, stateHolder).forEach { handler ->
+            handler.invoke(bot, key, { refreshCommands(key) }, this)
+        }
+    }
+
+    inner class StateHolder<S : BS>(
+        val stack: List<BS>,
+        private val key: K
+    ) {
+        val snapshot: S get() = stack.last() as S
+        val level: Int get() = stack.lastIndex
+
+        suspend fun BehaviourContext.push(state: BS) {
+            val stateStack = getStateStack(key)
+            check(stateStack.lastIndex == level)
+            setStateStack(key, stateStack + state)
+        }
+
+        suspend fun BehaviourContext.override(block: S.() -> BS) {
+            val stateStack = getStateStack(key)
+            check(stateStack.lastIndex == level)
+            val newStateStack = stateStack.dropLast(1) + block(snapshot)
+            setStateStack(key, newStateStack)
+        }
     }
 }

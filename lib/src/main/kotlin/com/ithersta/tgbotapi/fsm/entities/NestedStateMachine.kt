@@ -5,29 +5,26 @@ import com.ithersta.tgbotapi.fsm.entities.triggers.AppliedOnStateChangedHandler
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 
-class RoleFilter<BS : Any, BU : Any, U : BU, K : Any>(
-    private val map: (BU) -> U?,
+class NestedStateMachine<BS : Any, BU : Any, U : BU, K : Any>(
+    private val level: Int,
     private val filters: List<StateFilter<BS, BU, *, U, K>>
 ) {
     fun handler(
-        baseUser: BU,
         update: Update,
-        stateHolder: StateMachine<BS, *, *>.StateHolder<BS>
+        stateHolder: StateMachine<BS, *, *>.StateHolder<BS>,
+        user: U
     ): AppliedHandler? {
-        val user = map(baseUser) ?: return null
         return filters.firstNotNullOfOrNull { it.handler(update, stateHolder, user) }
     }
 
     fun onStateChangedHandlers(
-        baseUser: BU,
+        user: U,
         stateHolder: StateMachine<BS, *, *>.StateHolder<BS>
     ): List<AppliedOnStateChangedHandler<K>> {
-        val user = map(baseUser) ?: return emptyList()
         return filters.flatMap { it.onStateChangedHandler(stateHolder, user) }
     }
 
-    fun commands(baseUser: BU): List<BotCommand> {
-        if (map(baseUser) == null) return emptyList()
+    fun commands(): List<BotCommand> {
         return filters.flatMap { it.commands() }
     }
 }

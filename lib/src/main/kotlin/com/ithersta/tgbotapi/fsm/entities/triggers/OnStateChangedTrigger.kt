@@ -2,14 +2,13 @@ package com.ithersta.tgbotapi.fsm.entities.triggers
 
 import com.ithersta.tgbotapi.fsm.BaseStatefulContext
 import com.ithersta.tgbotapi.fsm.builders.StateFilterBuilder
+import com.ithersta.tgbotapi.fsm.entities.StateMachine
 import dev.inmo.tgbotapi.bot.RequestsExecutor
 import kotlinx.coroutines.CoroutineScope
 
 class OnStateChangedContext<BS : Any, BU : Any, S : BS, U : BU>(
     requestsExecutor: RequestsExecutor,
-    override val state: S,
-    override val setState: suspend (BS) -> Unit,
-    override val setStateQuiet: (BS) -> Unit,
+    override val state: StateMachine<BS, *, *>.StateHolder<S>,
     override val refreshCommands: suspend () -> Unit,
     override val user: U,
     override val coroutineScope: CoroutineScope
@@ -18,19 +17,17 @@ class OnStateChangedContext<BS : Any, BU : Any, S : BS, U : BU>(
 typealias OnStateChangedHandler<BS, BU, S, U, K> =
         suspend OnStateChangedContext<BS, BU, S, U>.(K) -> Unit
 
-typealias AppliedOnStateChangedHandler<BS, K> =
-        suspend (RequestsExecutor, K, suspend (BS) -> Unit, (BS) -> Unit, suspend () -> Unit, CoroutineScope) -> Unit
+typealias AppliedOnStateChangedHandler<K> =
+        suspend (RequestsExecutor, K, suspend () -> Unit, CoroutineScope) -> Unit
 
 class OnStateChangedTrigger<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
     private val handler: OnStateChangedHandler<BS, BU, S, U, K>
 ) {
-    fun handler(state: S, user: U): AppliedOnStateChangedHandler<BS, K> {
-        return { requestsExecutor, key, setState, setStateQuiet, refreshCommands, coroutineScope ->
+    fun handler(stateHolder: StateMachine<BS, *, *>.StateHolder<S>, user: U): AppliedOnStateChangedHandler<K> {
+        return { requestsExecutor, key, refreshCommands, coroutineScope ->
             OnStateChangedContext<BS, BU, _, _>(
                 requestsExecutor,
-                state,
-                setState,
-                setStateQuiet,
+                stateHolder,
                 refreshCommands,
                 user,
                 coroutineScope
