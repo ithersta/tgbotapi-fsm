@@ -26,7 +26,7 @@ class StateFilterBuilder<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
     }
 
     fun <R : Any> nestedStateMachine(
-        onExit: S.(R) -> BS,
+        onExit: S.(result: R) -> BS,
         block: NestedStateMachineBuilder<BS, BU, S, U, K, R>.() -> Unit
     ) {
         nestedStateMachines += NestedStateMachineBuilder<BS, BU, S, U, K, R>(level + 1, onExit).apply(block).build()
