@@ -5,6 +5,9 @@
 ### Added
 - Nested state machines
 
+### Changed
+- Updated `dev.inmo:tgbotapi:inmo-tgbotapi` to 3.3.0
+
 ## 0.18.0 (2022-10-21)
 
 ### Added
