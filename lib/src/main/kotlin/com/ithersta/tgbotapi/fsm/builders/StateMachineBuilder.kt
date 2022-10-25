@@ -46,7 +46,16 @@ class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
         stateRepository: StateRepository<K, BS>,
         initialState: BS
     ): StateMachine<BS, BU, K> {
-        return StateMachine(filters, includeHelp, getKey, getUser, getScope, stateRepository, initialState, exceptionHandler)
+        return StateMachine(
+            filters,
+            includeHelp,
+            getKey,
+            getUser,
+            getScope,
+            stateRepository,
+            initialState,
+            exceptionHandler
+        )
     }
 }
 
@@ -75,3 +84,17 @@ inline fun <reified BS : Any, BU : Any> stateMachine(
     initialState = initialState,
     block = block
 )
+
+inline fun <reified BS : Any, K : Any> rolelessStateMachine(
+    stateRepository: StateRepository<UserId, BS>,
+    initialState: BS,
+    crossinline block: RoleFilterBuilder<BS, Unit, Unit, UserId>.() -> Unit
+) = stateMachine(
+    getUser = {},
+    stateRepository = stateRepository,
+    initialState
+) {
+    anyRole {
+        block()
+    }
+}

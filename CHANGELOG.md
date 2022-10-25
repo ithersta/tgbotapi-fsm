@@ -4,6 +4,7 @@
 
 ### Added
 - Nested state machines
+- `rolelessStateMachine` builder
 
 ### Changed
 - Updated `dev.inmo:tgbotapi:inmo-tgbotapi` to 3.3.0
