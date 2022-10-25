@@ -1,6 +1,6 @@
 [versions]
 tgbotapi-fsm = "0.19.0"
-inmo-tgbotapi = "3.2.7"
+inmo-tgbotapi = "3.3.0"
 koin = "3.2.2"
 
 [libraries]
