@@ -84,8 +84,16 @@ private val stateMachine = stateMachine<DialogState, User>(
         with(emptyMenu) { invoke() }
         println(emptyMenu.descriptions)
         state<EmptyState> {
+            nestedStateMachine {
+                state<WaitingForName> {
+                    onEnter {
+                        sendTextMessage(it, "You're in a nested state machine")
+                    }
+                }
+            }
             onEnter { sendTextMessage(it, "Empty state. You're $user") }
             onCommand("start", "register") { state.override { WaitingForName } }
+            onCommand("startnested", "register") { state.push(WaitingForName) }
             onCommand("menu", "show menu") { state.override { MenuStates.Main } }
         }
         state<WaitingForName> {

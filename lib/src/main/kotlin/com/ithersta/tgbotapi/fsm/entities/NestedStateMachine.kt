@@ -14,6 +14,7 @@ class NestedStateMachine<BS : Any, BU : Any, U : BU, K : Any>(
         stateHolder: StateMachine<BS, *, *>.StateHolder<BS>,
         user: U
     ): AppliedHandler? {
+        if (stateHolder.level < level) return null
         return filters.firstNotNullOfOrNull { it.handler(update, stateHolder, user) }
     }
 
@@ -21,6 +22,7 @@ class NestedStateMachine<BS : Any, BU : Any, U : BU, K : Any>(
         user: U,
         stateHolder: StateMachine<BS, *, *>.StateHolder<BS>
     ): List<AppliedOnStateChangedHandler<K>> {
+        if (stateHolder.level < level) return emptyList()
         return filters.flatMap { it.onStateChangedHandler(stateHolder, user) }
     }
 
