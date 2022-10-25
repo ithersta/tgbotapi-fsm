@@ -96,6 +96,17 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
             }
         }
 
+        suspend fun popAndOverride(override: (BS) -> BS) {
+            val stateStack = getStateStack(key)
+            check(stateStack.lastIndex == level)
+            val newStateStack = stateStack.dropLast(1).let {
+                it.dropLast(1) + override(it.last())
+            }
+            with(behaviourContext) {
+                setStateStack(key, newStateStack)
+            }
+        }
+
         suspend fun override(block: S.() -> BS) {
             with(behaviourContext) {
                 setStateStack(key, overridden(block))

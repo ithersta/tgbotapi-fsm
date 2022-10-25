@@ -84,10 +84,15 @@ private val stateMachine = stateMachine<DialogState, User>(
         with(emptyMenu) { invoke() }
         println(emptyMenu.descriptions)
         state<EmptyState> {
-            nestedStateMachine {
+            nestedStateMachine<String>(
+                onExit = { WaitingForAge(it) }
+            ) {
                 state<WaitingForName> {
                     onEnter {
                         sendTextMessage(it, "You're in a nested state machine")
+                    }
+                    onText {
+                        this@nestedStateMachine.exit(state, "Unit")
                     }
                 }
             }

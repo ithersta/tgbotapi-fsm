@@ -25,8 +25,11 @@ class StateFilterBuilder<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
         onStateChangedTrigger = trigger
     }
 
-    fun nestedStateMachine(block: NestedStateMachineBuilder<BS, BU, U, K>.() -> Unit) {
-        nestedStateMachines += NestedStateMachineBuilder<BS, BU, U, K>(level + 1).apply(block).build()
+    fun <R : Any> nestedStateMachine(
+        onExit: S.(R) -> BS,
+        block: NestedStateMachineBuilder<BS, BU, S, U, K, R>.() -> Unit
+    ) {
+        nestedStateMachines += NestedStateMachineBuilder<BS, BU, S, U, K, R>(level + 1, onExit).apply(block).build()
     }
 
     fun build() = StateFilter(map, triggers, nestedStateMachines, onStateChangedTrigger, level)
