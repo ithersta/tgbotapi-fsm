@@ -10,5 +10,5 @@ class Submenu<BS : Any, BU : Any, U : BU>(
     entries: List<MenuEntry<BS, BU, U>>
 ) : Menu<BS, BU, U>(messageText, state, entries), MenuEntry<BS, BU, U> {
     override val handler: Handler<BS, BU, *, U, TextMessage>
-        get() = { setState(this@Submenu.state) }
+        get() = { state.override { this@Submenu.targetState } }
 }

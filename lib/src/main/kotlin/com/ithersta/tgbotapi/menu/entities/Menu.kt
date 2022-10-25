@@ -12,7 +12,7 @@ import kotlin.reflect.safeCast
 
 open class Menu<BS : Any, BU : Any, U : BU>(
     val messageText: String,
-    val state: BS,
+    val targetState: BS,
     val entries: List<MenuEntry<BS, BU, U>>
 ) {
     val flattenedEntries: List<MenuEntry<BS, BU, U>> = entries.flatMap {
@@ -42,7 +42,7 @@ open class Menu<BS : Any, BU : Any, U : BU>(
                         onText(entry.text, handler = entry.handler)
                     }
                 },
-                map = { submenu.state::class.safeCast(it) }
+                map = { submenu.targetState::class.safeCast(it) }
             )
         }
     }

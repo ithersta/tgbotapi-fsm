@@ -34,7 +34,7 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
                     return@runCatching
                 }
                 val stateStack = getStateStack(key)
-                val stateHolder = StateHolder<BS>(stateStack, key)
+                val stateHolder = StateHolder<BS>(stateStack, key, this@collect)
                 handler(update, user, stateHolder)?.invoke(
                     bot,
                     { refreshCommands(key) },
@@ -68,32 +68,48 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
     }
 
     private suspend fun BehaviourContext.setStateStack(key: K, stateStack: List<BS>) {
-        stateRepository.set(key, stateStack)
+        setStateStackQuietly(key, stateStack)
         val user = getUser(key)
-        val stateHolder = StateHolder<BS>(stateStack, key)
+        val stateHolder = StateHolder<BS>(stateStack, key, this)
         onStateChangedHandlers(user, stateHolder).forEach { handler ->
             handler.invoke(bot, key, { refreshCommands(key) }, this)
         }
     }
 
+    private fun setStateStackQuietly(key: K, stateStack: List<BS>) {
+        stateRepository.set(key, stateStack)
+    }
+
     inner class StateHolder<S : BS>(
         val stack: List<BS>,
-        private val key: K
+        private val key: K,
+        private val behaviourContext: BehaviourContext
     ) {
         val snapshot: S get() = stack.last() as S
         val level: Int get() = stack.lastIndex
 
-        suspend fun BehaviourContext.push(state: BS) {
+        suspend fun push(state: BS) {
             val stateStack = getStateStack(key)
             check(stateStack.lastIndex == level)
-            setStateStack(key, stateStack + state)
+            with(behaviourContext) {
+                setStateStack(key, stateStack + state)
+            }
         }
 
-        suspend fun BehaviourContext.override(block: S.() -> BS) {
+        suspend fun override(block: S.() -> BS) {
+            with(behaviourContext) {
+                setStateStack(key, overridden(block))
+            }
+        }
+
+        fun overrideQuietly(block: S.() -> BS) {
+            setStateStackQuietly(key, overridden(block))
+        }
+
+        private fun overridden(block: S.() -> BS): List<BS> {
             val stateStack = getStateStack(key)
             check(stateStack.lastIndex == level)
-            val newStateStack = stateStack.dropLast(1) + block(snapshot)
-            setStateStack(key, newStateStack)
+            return stateStack.dropLast(1) + block(snapshot)
         }
     }
 }

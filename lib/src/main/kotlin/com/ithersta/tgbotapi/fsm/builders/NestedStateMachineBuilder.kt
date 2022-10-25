@@ -1,9 +1,11 @@
 package com.ithersta.tgbotapi.fsm.builders
 
+import com.ithersta.tgbotapi.fsm.FsmDsl
 import com.ithersta.tgbotapi.fsm.entities.NestedStateMachine
 import com.ithersta.tgbotapi.fsm.entities.StateFilter
 import org.koin.core.component.KoinComponent
 
+@FsmDsl
 class NestedStateMachineBuilder<BS : Any, BU : Any, U : BU, K : Any>(private val level: Int) : KoinComponent {
     private val filters = mutableListOf<StateFilter<BS, BU, *, U, K>>()
 

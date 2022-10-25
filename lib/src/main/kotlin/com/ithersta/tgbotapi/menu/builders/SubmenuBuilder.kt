@@ -13,6 +13,6 @@ class SubmenuBuilder<BS : Any, BU : Any, U : BU>(
     }
 
     override fun build(): Submenu<BS, BU, U> {
-        return Submenu(text, messageText, state, entries)
+        return Submenu(text, messageText, targetState, entries)
     }
 }

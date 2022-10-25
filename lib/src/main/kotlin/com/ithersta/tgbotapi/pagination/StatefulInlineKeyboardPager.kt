@@ -37,7 +37,7 @@ class StatefulInlineKeyboardPager<BS : Any, BU : Any, S : BS, U : BU>(
         val inlineKeyboard = block(PagerBuilder(page, offset, limit, id, this))
         if (pagerState.messageId == null) {
             val messageId = sendTextMessage(chatId, text, replyMarkup = inlineKeyboard).messageId
-            setStateQuiet(onPagerStateChanged(this, PagerState(pagerState.page, messageId)))
+            state.overrideQuietly { onPagerStateChanged(this@sendOrEditMessage, PagerState(pagerState.page, messageId)) }
         } else {
             runCatching {
                 editMessageText(chatId, pagerState.messageId, text, replyMarkup = inlineKeyboard)
@@ -47,14 +47,14 @@ class StatefulInlineKeyboardPager<BS : Any, BU : Any, S : BS, U : BU>(
 
     fun StateFilterBuilder<BS, BU, S, U, UserId>.setupTriggers() {
         onDataCallbackQuery(Regex("$PREFIX $id")) {
-            setState(state)
+            state.override { this }
             answer(it)
         }
         onDataCallbackQuery(Regex("$PREFIX $id page \\d+")) {
             val page = it.data.split(" ").last().toInt()
             val messageId = it.asMessageCallbackQuery()?.message?.messageId ?: return@onDataCallbackQuery
             val pagerState = PagerState(page, messageId)
-            setState(onPagerStateChanged(pagerState))
+            state.override { onPagerStateChanged(pagerState) }
             answer(it)
         }
     }
