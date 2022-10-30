@@ -1,23 +1,28 @@
 plugins {
     kotlin("jvm")
-    kotlin("plugin.serialization")
     `java-library`
     `maven-publish`
 }
 
-version = libs.versions.tgbotapi.fsm.get()
+repositories {
+    mavenCentral()
+}
+
+version = "0.1.0"
 
 dependencies {
     implementation(libs.kotlinx.serialization.protobuf)
-    api(libs.inmo.tgbotapi)
-    api(libs.koin.core)
+    implementation(libs.tgbotapi.fsm)
+    implementation("org.jetbrains.exposed", "exposed-core", "0.40.1")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.40.1")
+    implementation("org.xerial:sqlite-jdbc:3.39.3.0")
 }
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "com.ithersta.tgbotapi"
-            artifactId = "fsm"
+            artifactId = "sqlite-persistence"
             version = version
 
             from(components["java"])

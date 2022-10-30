@@ -6,6 +6,7 @@ import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.menu.builders.menu
 import com.ithersta.tgbotapi.pagination.PagerState
 import com.ithersta.tgbotapi.pagination.statefulInlineKeyboardPager
+import com.ithersta.tgbotapi.persistence.SqliteStateRepository
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
@@ -20,7 +21,7 @@ val strings = (1..100).map { it.toString() }
 
 private val stateMachine = stateMachine<DialogState, User>(
     getUser = { EmptyUser },
-    stateRepository = InMemoryStateRepositoryImpl(),
+    stateRepository = SqliteStateRepository.create(),
     initialState = EmptyState
 ) {
     onException { userId, throwable ->
