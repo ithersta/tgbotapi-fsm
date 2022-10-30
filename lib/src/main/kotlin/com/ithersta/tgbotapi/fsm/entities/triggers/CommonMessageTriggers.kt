@@ -25,6 +25,11 @@ fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, 
     handler: Handler<BS, BU, S, U, DocumentMessage>
 ) = onCommonMessage(handler, filter = filter)
 
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onPhoto(
+    filter: (PhotoMessage) -> Boolean = { true },
+    handler: Handler<BS, BU, S, U, PhotoMessage>
+) = onCommonMessage(handler, filter = filter)
+
 fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onCommand(
     command: String,
     description: String?,
