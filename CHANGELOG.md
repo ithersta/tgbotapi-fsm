@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.3 (2022-11-01)
+
+### Changed
+- Added deprecation notice on `setState`
+
 ## 0.19.2 (2022-10-30)
 
 ### Added

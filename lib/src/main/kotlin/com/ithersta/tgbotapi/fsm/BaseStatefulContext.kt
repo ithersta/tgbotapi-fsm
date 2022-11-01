@@ -10,4 +10,12 @@ interface BaseStatefulContext<BS : Any, BU : Any, S : BS, U : BU> : RequestsExec
     val refreshCommands: suspend () -> Unit
     val user: U
     val coroutineScope: CoroutineScope
+
+    @Deprecated(
+        "setState is deprecated after nested state machines introduction. Use state.override instead",
+        replaceWith = ReplaceWith("state.override { value }")
+    )
+    suspend fun setState(value: BS) {
+        state.override { value }
+    }
 }
