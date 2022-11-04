@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.19.4 (2022-11-05)
+
+### Changed
+- Added `onException` argument to `rolelessStateMachine`
+
 ## 0.19.3 (2022-11-01)
 
 ### Changed

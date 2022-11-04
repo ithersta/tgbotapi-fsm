@@ -88,12 +88,14 @@ inline fun <reified BS : Any, BU : Any> stateMachine(
 inline fun <reified BS : Any> rolelessStateMachine(
     stateRepository: StateRepository<UserId, BS>,
     initialState: BS,
+    noinline onException: ExceptionHandler<UserId>,
     crossinline block: RoleFilterBuilder<BS, Unit, Unit, UserId>.() -> Unit
 ) = stateMachine(
     getUser = {},
     stateRepository = stateRepository,
     initialState
 ) {
+    onException(onException)
     anyRole {
         block()
     }
