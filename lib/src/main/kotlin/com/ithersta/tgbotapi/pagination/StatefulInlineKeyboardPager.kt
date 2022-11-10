@@ -8,6 +8,7 @@ import dev.inmo.tgbotapi.extensions.api.edit.text.editMessageText
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.utils.asMessageCallbackQuery
 import dev.inmo.tgbotapi.types.ChatId
+import dev.inmo.tgbotapi.types.IdChatIdentifier
 import dev.inmo.tgbotapi.types.MessageIdentifier
 import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.types.buttons.InlineKeyboardMarkup
@@ -28,7 +29,7 @@ class StatefulInlineKeyboardPager<BS : Any, BU : Any, S : BS, U : BU>(
     private val block: PagerBuilder<BS, BU, S, U>.() -> InlineKeyboardMarkup
 ) {
     suspend fun BaseStatefulContext<BS, BU, S, U>.sendOrEditMessage(
-        chatId: ChatId,
+        idChatIdentifier: IdChatIdentifier,
         text: String,
         pagerState: PagerState
     ) {
@@ -36,11 +37,11 @@ class StatefulInlineKeyboardPager<BS : Any, BU : Any, S : BS, U : BU>(
         val offset = page * limit
         val inlineKeyboard = block(PagerBuilder(page, offset, limit, id, this))
         if (pagerState.messageId == null) {
-            val messageId = sendTextMessage(chatId, text, replyMarkup = inlineKeyboard).messageId
+            val messageId = sendTextMessage(idChatIdentifier, text, replyMarkup = inlineKeyboard).messageId
             state.overrideQuietly { onPagerStateChanged(this@sendOrEditMessage, PagerState(pagerState.page, messageId)) }
         } else {
             runCatching {
-                editMessageText(chatId, pagerState.messageId, text, replyMarkup = inlineKeyboard)
+                editMessageText(idChatIdentifier, pagerState.messageId, text, replyMarkup = inlineKeyboard)
             }
         }
     }

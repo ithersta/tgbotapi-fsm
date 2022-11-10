@@ -4,6 +4,7 @@ import com.ithersta.tgbotapi.fsm.builders.StateFilterBuilder
 import dev.inmo.tgbotapi.extensions.utils.asBaseSentMessageUpdate
 import dev.inmo.tgbotapi.extensions.utils.commonMessageOrNull
 import dev.inmo.tgbotapi.extensions.utils.withContent
+import dev.inmo.tgbotapi.extensions.utils.withContentOrNull
 import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.message.abstracts.CommonMessage
 import dev.inmo.tgbotapi.types.message.content.*
@@ -29,6 +30,11 @@ fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, 
     filter: (PhotoMessage) -> Boolean = { true },
     handler: Handler<BS, BU, S, U, PhotoMessage>
 ) = onCommonMessage(handler, filter = filter)
+
+fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onDocumentMediaGroup(
+    filter: (MediaGroupMessage<DocumentMediaGroupPartContent>) -> Boolean = { true },
+    handler: Handler<BS, BU, S, U, MediaGroupMessage<DocumentMediaGroupPartContent>>
+) = onGroupMessage(handler, filter = filter)
 
 fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onCommand(
     command: String,
@@ -61,5 +67,19 @@ private inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any, reified T : Mes
 ) = add(
     Trigger(handler, botCommand) {
         asBaseSentMessageUpdate()?.data?.commonMessageOrNull()?.withContent<T>()?.takeIf(filter)
+    }
+)
+
+@OptIn(PreviewFeature::class)
+private inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any, reified T : MediaGroupPartContent> StateFilterBuilder<BS, BU, S, U, K>.onGroupMessage(
+    noinline handler: Handler<BS, BU, S, U, MediaGroupMessage<T>>,
+    botCommand: BotCommand? = null,
+    crossinline filter: (MediaGroupMessage<T>) -> Boolean = { true }
+) = add(
+    Trigger(handler, botCommand) {
+        asBaseSentMessageUpdate()?.data?.commonMessageOrNull()?.withContentOrNull<MediaGroupContent<*>>()
+            ?.takeIf { group -> group.content.group.all { it.content is T } }
+            ?.let { it as MediaGroupMessage<T> }
+            ?.takeIf(filter)
     }
 )

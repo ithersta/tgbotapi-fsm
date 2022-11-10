@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.20.0 (2022-11-10)
+
+### Added
+- `onDocumentMediaGroup` trigger
+
 ## 0.19.4 (2022-11-05)
 
 ### Changed

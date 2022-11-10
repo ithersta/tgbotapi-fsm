@@ -9,7 +9,6 @@ version = "unspecified"
 dependencies {
     implementation(project(":lib"))
     implementation(project(":sqlite"))
-    implementation(libs.inmo.tgbotapi)
 }
 
 tasks.getByName<Test>("test") {

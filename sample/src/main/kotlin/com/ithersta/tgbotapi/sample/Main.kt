@@ -21,7 +21,7 @@ val strings = (1..100).map { it.toString() }
 
 private val stateMachine = stateMachine<DialogState, User>(
     getUser = { EmptyUser },
-    stateRepository = SqliteStateRepository.create(),
+    stateRepository = InMemoryStateRepositoryImpl(),
     initialState = EmptyState
 ) {
     onException { userId, throwable ->
@@ -54,6 +54,12 @@ private val stateMachine = stateMachine<DialogState, User>(
             }
         }
         anyState {
+            onDocumentMediaGroup { message ->
+                sendTextMessage(message.chat, message.content.group.size.toString())
+            }
+            onDocument { message ->
+                sendTextMessage(message.chat, message.content.media.fileName ?: "d")
+            }
             onCommand("pager", null) {
                 state.override { Pager(PagerState()) }
             }
