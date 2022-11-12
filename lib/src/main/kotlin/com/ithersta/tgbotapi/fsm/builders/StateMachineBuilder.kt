@@ -14,7 +14,6 @@ import org.koin.core.component.KoinComponent
 
 @FsmDsl
 class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
-    private var includeHelp = false
     private var exceptionHandler: ExceptionHandler<K>? = null
     private val filters = mutableListOf<RoleFilter<BS, BU, *, K>>()
 
@@ -30,10 +29,6 @@ class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
         filters += RoleFilterBuilder<BS, BU, U, K>(map).apply(block).build()
     }
 
-    fun includeHelp() {
-        includeHelp = true
-    }
-
     fun onException(exceptionHandler: ExceptionHandler<K>) {
         check(this.exceptionHandler == null)
         this.exceptionHandler = exceptionHandler
@@ -44,7 +39,8 @@ class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
         getUser: (K) -> BU,
         getScope: (K) -> BotCommandScope,
         stateRepository: StateRepository<K, BS>,
-        initialState: BS
+        initialState: BS,
+        includeHelp: Boolean
     ): StateMachine<BS, BU, K> {
         return StateMachine(
             filters,
@@ -65,16 +61,18 @@ inline fun <reified BS : Any, BU : Any, K : Any> stateMachine(
     noinline getScope: (K) -> BotCommandScope,
     stateRepository: StateRepository<K, BS>,
     initialState: BS,
+    includeHelp: Boolean = false,
     block: StateMachineBuilder<BS, BU, K>.() -> Unit
 ) = StateMachineBuilder<BS, BU, K>()
     .apply(block)
-    .build(getKey, getUser, getScope, stateRepository, initialState)
+    .build(getKey, getUser, getScope, stateRepository, initialState, includeHelp)
 
 @OptIn(PreviewFeature::class)
 inline fun <reified BS : Any, BU : Any> stateMachine(
     noinline getUser: (UserId) -> BU,
     stateRepository: StateRepository<UserId, BS>,
     initialState: BS,
+    includeHelp: Boolean = false,
     block: StateMachineBuilder<BS, BU, UserId>.() -> Unit
 ) = stateMachine(
     getKey = { it.data.fromUserOrNull()?.from?.id },
@@ -82,6 +80,7 @@ inline fun <reified BS : Any, BU : Any> stateMachine(
     getUser = getUser,
     stateRepository = stateRepository,
     initialState = initialState,
+    includeHelp = includeHelp,
     block = block
 )
 
@@ -89,11 +88,13 @@ inline fun <reified BS : Any> rolelessStateMachine(
     stateRepository: StateRepository<UserId, BS>,
     initialState: BS,
     noinline onException: ExceptionHandler<UserId>,
+    includeHelp: Boolean = false,
     crossinline block: RoleFilterBuilder<BS, Unit, Unit, UserId>.() -> Unit
 ) = stateMachine(
     getUser = {},
     stateRepository = stateRepository,
-    initialState
+    initialState = initialState,
+    includeHelp = includeHelp
 ) {
     onException(onException)
     anyRole {

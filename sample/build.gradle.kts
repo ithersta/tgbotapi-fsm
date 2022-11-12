@@ -9,6 +9,7 @@ version = "unspecified"
 dependencies {
     implementation(project(":lib"))
     implementation(project(":sqlite"))
+    implementation(project(":commands"))
 }
 
 tasks.getByName<Test>("test") {

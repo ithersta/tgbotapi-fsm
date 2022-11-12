@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.21.0 (2022-11-12)
+
+### Changed
+- `includeHelp` is now builder argument
+
 ## 0.20.0 (2022-11-10)
 
 ### Added

@@ -1,5 +1,7 @@
 package com.ithersta.tgbotapi.sample
 
+import com.ithersta.tgbotapi.commands.cancelCommand
+import com.ithersta.tgbotapi.commands.fallback
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
 import com.ithersta.tgbotapi.fsm.entities.triggers.*
 import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
@@ -21,12 +23,13 @@ val strings = (1..100).map { it.toString() }
 
 private val stateMachine = stateMachine<DialogState, User>(
     getUser = { EmptyUser },
-    stateRepository = InMemoryStateRepositoryImpl(),
+    stateRepository = SqliteStateRepository.create(),
     initialState = EmptyState
 ) {
     onException { userId, throwable ->
         sendTextMessage(userId, throwable.toString())
     }
+    cancelCommand(EmptyState)
     includeHelp()
     role<Admin> {
         anyState {
@@ -142,6 +145,7 @@ private val stateMachine = stateMachine<DialogState, User>(
             }
         }
     }
+    fallback()
 }
 
 suspend fun main() {
