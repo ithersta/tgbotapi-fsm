@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.22.0 (2022-12-30)
+
+### Added
+- `state.rollback()` function
+
 ## 0.21.0 (2022-11-12)
 
 ### Changed

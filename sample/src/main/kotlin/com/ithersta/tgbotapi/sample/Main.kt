@@ -4,7 +4,6 @@ import com.ithersta.tgbotapi.commands.cancelCommand
 import com.ithersta.tgbotapi.commands.fallback
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
 import com.ithersta.tgbotapi.fsm.entities.triggers.*
-import com.ithersta.tgbotapi.fsm.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.menu.builders.menu
 import com.ithersta.tgbotapi.pagination.PagerState
 import com.ithersta.tgbotapi.pagination.statefulInlineKeyboardPager
@@ -23,14 +22,23 @@ val strings = (1..100).map { it.toString() }
 
 private val stateMachine = stateMachine<DialogState, User>(
     getUser = { EmptyUser },
-    stateRepository = SqliteStateRepository.create(),
-    initialState = EmptyState
+    stateRepository = SqliteStateRepository.create(historyDepth = 3),
+    initialState = EmptyState,
+    includeHelp = true
 ) {
     onException { userId, throwable ->
         sendTextMessage(userId, throwable.toString())
     }
     cancelCommand(EmptyState)
-    includeHelp()
+    anyRole {
+        anyState {
+            onCommand("back", "вернуться назад") {
+                if(state.rollback().not()) {
+                    sendTextMessage(it.chat, "Больше нельзя отменять")
+                }
+            }
+        }
+    }
     role<Admin> {
         anyState {
             onCommand("wow", "admin command") {
@@ -110,6 +118,9 @@ private val stateMachine = stateMachine<DialogState, User>(
             onCommand("start", "register") { state.override { WaitingForName } }
             onCommand("startnested", "register") { state.push(WaitingForName) }
             onCommand("menu", "show menu") { state.override { MenuStates.Main } }
+            onDocumentMediaGroup { message ->
+                message.content.group.map { it.content.media.fileId }
+            }
         }
         state<WaitingForName> {
             onEnter {

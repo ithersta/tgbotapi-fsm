@@ -69,11 +69,21 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
 
     private suspend fun BehaviourContext.setStateStack(key: K, stateStack: List<BS>) {
         setStateStackQuietly(key, stateStack)
+        onStateStackUpdated(key, stateStack)
+    }
+
+    private suspend fun BehaviourContext.onStateStackUpdated(key: K, stateStack: List<BS>) {
         val user = getUser(key)
         val stateHolder = StateHolder<BS>(stateStack, key, this)
         onStateChangedHandlers(user, stateHolder).forEach { handler ->
             handler.invoke(bot, key, { refreshCommands(key) }, this)
         }
+    }
+
+    private suspend fun BehaviourContext.rollbackStateStack(key: K): Boolean {
+        val stateStack = stateRepository.rollback(key) ?: return false
+        onStateStackUpdated(key, stateStack)
+        return true
     }
 
     private fun setStateStackQuietly(key: K, stateStack: List<BS>) {
@@ -115,6 +125,12 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
 
         fun overrideQuietly(block: S.() -> BS) {
             setStateStackQuietly(key, overridden(block))
+        }
+
+        suspend fun rollback(): Boolean {
+            return with(behaviourContext) {
+                rollbackStateStack(key)
+            }
         }
 
         private fun overridden(block: S.() -> BS): List<BS> {
