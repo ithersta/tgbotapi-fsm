@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.tgbotapi.fsm)
     implementation("org.jetbrains.exposed", "exposed-core", "0.40.1")
-    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.40.1")
+    implementation("org.jetbrains.exposed", "exposed-jdbc", "0.41.1")
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
 }
 
