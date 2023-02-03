@@ -1,7 +1,10 @@
 # Changelog
 
-## Unreleasd
+## 0.23.0 (2023-02-03)
 
+
+### Added
+- `state.isRollingBack` property
 
 ## 0.22.0 (2022-12-30)
 

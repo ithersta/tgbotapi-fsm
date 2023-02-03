@@ -34,7 +34,7 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
                     return@runCatching
                 }
                 val stateStack = getStateStack(key)
-                val stateHolder = StateHolder<BS>(stateStack, key, this@collect)
+                val stateHolder = StateHolder<BS>(stateStack, key, this@collect, false)
                 handler(update, user, stateHolder)?.invoke(
                     bot,
                     { refreshCommands(key) },
@@ -69,12 +69,12 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
 
     private suspend fun BehaviourContext.setStateStack(key: K, stateStack: List<BS>) {
         setStateStackQuietly(key, stateStack)
-        onStateStackUpdated(key, stateStack)
+        onStateStackUpdated(key, stateStack, false)
     }
 
-    private suspend fun BehaviourContext.onStateStackUpdated(key: K, stateStack: List<BS>) {
+    private suspend fun BehaviourContext.onStateStackUpdated(key: K, stateStack: List<BS>, isRollingBack: Boolean) {
         val user = getUser(key)
-        val stateHolder = StateHolder<BS>(stateStack, key, this)
+        val stateHolder = StateHolder<BS>(stateStack, key, this, isRollingBack)
         onStateChangedHandlers(user, stateHolder).forEach { handler ->
             handler.invoke(bot, key, { refreshCommands(key) }, this)
         }
@@ -82,7 +82,7 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
 
     private suspend fun BehaviourContext.rollbackStateStack(key: K): Boolean {
         val stateStack = stateRepository.rollback(key) ?: return false
-        onStateStackUpdated(key, stateStack)
+        onStateStackUpdated(key, stateStack, true)
         return true
     }
 
@@ -93,7 +93,8 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
     inner class StateHolder<S : BS>(
         val stack: List<BS>,
         private val key: K,
-        private val behaviourContext: BehaviourContext
+        private val behaviourContext: BehaviourContext,
+        val isRollingBack: Boolean
     ) {
         val snapshot: S get() = stack.last() as S
         val level: Int get() = stack.lastIndex
