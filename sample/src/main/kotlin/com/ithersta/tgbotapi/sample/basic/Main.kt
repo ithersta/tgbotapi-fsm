@@ -1,4 +1,4 @@
-package com.ithersta.tgbotapi.sample
+package com.ithersta.tgbotapi.sample.basic
 
 import com.ithersta.tgbotapi.commands.cancelCommand
 import com.ithersta.tgbotapi.commands.fallback

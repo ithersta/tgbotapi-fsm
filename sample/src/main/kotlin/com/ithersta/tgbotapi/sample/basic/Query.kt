@@ -1,4 +1,4 @@
-package com.ithersta.tgbotapi.sample
+package com.ithersta.tgbotapi.sample.basic
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
