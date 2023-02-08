@@ -2,7 +2,7 @@ package com.ithersta.tgbotapi.fsm.entities
 
 import com.ithersta.tgbotapi.fsm.entities.triggers.AppliedHandler
 import com.ithersta.tgbotapi.fsm.entities.triggers.AppliedOnStateChangedHandler
-import com.ithersta.tgbotapi.fsm.repository.StateRepository
+import com.ithersta.tgbotapi.fsm.engines.repository.StateRepository
 import com.ithersta.tgbotapi.fsm.tryHandlingHelp
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptionsAsync
 import dev.inmo.tgbotapi.bot.RequestsExecutor
@@ -13,42 +13,111 @@ import dev.inmo.tgbotapi.types.BotCommand
 import dev.inmo.tgbotapi.types.commands.BotCommandScope
 import dev.inmo.tgbotapi.types.update.abstracts.Update
 
-typealias ExceptionHandler<K> = suspend RequestsExecutor.(K, Throwable) -> Unit
-
 class StateMachine<BS : Any, BU : Any, K : Any>(
     private val filters: List<RoleFilter<BS, BU, *, K>>,
     private val includeHelp: Boolean,
-    private val getKey: (Update) -> K?,
-    private val getUser: (K) -> BU,
-    private val getScope: (K) -> BotCommandScope,
-    private val stateRepository: StateRepository<K, BS>,
     private val initialState: BS,
-    private val exceptionHandler: ExceptionHandler<K>?
 ) {
-    fun BehaviourContext.collect() {
-        allUpdatesFlow.subscribeSafelyWithoutExceptionsAsync(scope, { getKey(it) }) { update ->
-            val key = getKey(update) ?: return@subscribeSafelyWithoutExceptionsAsync
-            runCatching {
-                val user = getUser(key)
-                if (includeHelp && tryHandlingHelp(update) { commands(user) }) {
-                    return@runCatching
-                }
-                val stateStack = getStateStack(key)
-                val stateHolder = StateHolder<BS>(stateStack, key, this@collect, false)
-                handler(update, user, stateHolder)?.invoke(
-                    bot,
-                    { refreshCommands(key) },
-                    this
-                )
-            }.onFailure {
-                exceptionHandler?.invoke(bot, key, it)
+    inner class DataAccessor(
+        val key: K,
+        val getUser: () -> BU,
+        private val getStateStackData: () -> List<BS>?,
+        private val setStateStackData: (List<BS>) -> Unit,
+        private val rollbackStateStackData: () -> List<BS>?,
+        val refreshCommands: suspend (List<BotCommand>) -> Unit
+    ) {
+        fun getStateStack() = getStateStackData() ?: listOf(initialState)
+        fun setStateStackQuietly(stateStack: List<BS>) = setStateStackData(stateStack)
+
+        suspend fun BehaviourContext.setStateStack(
+            stateStack: List<BS>
+        ) {
+            setStateStackData(stateStack)
+            onStateStackUpdated(stateStack, false)
+        }
+
+        private suspend fun BehaviourContext.onStateStackUpdated(
+            stateStack: List<BS>,
+            isRollingBack: Boolean
+        ) {
+            val user = getUser()
+            val stateHolder = StateHolder<BS>(stateStack, this, this@DataAccessor, isRollingBack)
+            onStateChangedHandlers(user, stateHolder).forEach { handler ->
+                handler.invoke(bot, key, { refreshCommands(commands(user)) }, this)
             }
+        }
+
+        suspend fun BehaviourContext.rollbackStateStack(): Boolean {
+            val stateStack = rollbackStateStackData() ?: return false
+            onStateStackUpdated(stateStack, true)
+            return true
         }
     }
 
-    private suspend fun RequestsExecutor.refreshCommands(key: K) {
-        @Suppress("DeferredResultUnused")
-        executeAsync(SetMyCommands(commands(getUser(key)), getScope(key)))
+    inner class StateHolder<S : BS>(
+        val stack: List<BS>,
+        private val behaviourContext: BehaviourContext,
+        private val dataAccessor: DataAccessor,
+        val isRollingBack: Boolean
+    ) {
+        val snapshot: S get() = stack.last() as S
+        val level: Int get() = stack.lastIndex
+
+        suspend fun push(state: BS) {
+            val stateStack = dataAccessor.getStateStack()
+            check(stateStack.lastIndex == level)
+            with(dataAccessor) {
+                behaviourContext.setStateStack(stateStack + state)
+            }
+        }
+
+        suspend fun popAndOverride(override: (BS) -> BS) {
+            val stateStack = dataAccessor.getStateStack()
+            check(stateStack.lastIndex == level)
+            val newStateStack = stateStack.dropLast(1).let {
+                it.dropLast(1) + override(it.last())
+            }
+            with(dataAccessor) {
+                behaviourContext.setStateStack(newStateStack)
+            }
+        }
+
+        suspend fun override(block: S.() -> BS) {
+            with(dataAccessor) {
+                behaviourContext.setStateStack(overridden(block))
+            }
+        }
+
+        fun overrideQuietly(block: S.() -> BS) {
+            dataAccessor.setStateStackQuietly(overridden(block))
+        }
+
+        suspend fun rollback(): Boolean {
+            return with(dataAccessor) {
+                behaviourContext.rollbackStateStack()
+            }
+        }
+
+        private fun overridden(block: S.() -> BS): List<BS> {
+            val stateStack = dataAccessor.getStateStack()
+            check(stateStack.lastIndex == level)
+            return stateStack.dropLast(1) + block(snapshot)
+        }
+    }
+
+    suspend fun BehaviourContext.dispatch(
+        update: Update,
+        dataAccessor: DataAccessor
+    ) {
+        val user = dataAccessor.getUser()
+        if (includeHelp && tryHandlingHelp(update) { commands(user) }) return
+        val stateHolder = StateHolder<BS>(
+            stack = dataAccessor.getStateStack(),
+            behaviourContext = this,
+            dataAccessor = dataAccessor,
+            isRollingBack = false
+        )
+        handler(update, user, stateHolder)?.invoke(bot, { dataAccessor.refreshCommands(commands(user)) }, this)
     }
 
     private fun handler(update: Update, user: BU, stateHolder: StateHolder<BS>): AppliedHandler? {
@@ -61,83 +130,5 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
 
     private fun commands(user: BU): List<BotCommand> {
         return filters.flatMap { it.commands(user) }
-    }
-
-    private fun getStateStack(key: K): List<BS> {
-        return stateRepository.get(key) ?: listOf(initialState)
-    }
-
-    private suspend fun BehaviourContext.setStateStack(key: K, stateStack: List<BS>) {
-        setStateStackQuietly(key, stateStack)
-        onStateStackUpdated(key, stateStack, false)
-    }
-
-    private suspend fun BehaviourContext.onStateStackUpdated(key: K, stateStack: List<BS>, isRollingBack: Boolean) {
-        val user = getUser(key)
-        val stateHolder = StateHolder<BS>(stateStack, key, this, isRollingBack)
-        onStateChangedHandlers(user, stateHolder).forEach { handler ->
-            handler.invoke(bot, key, { refreshCommands(key) }, this)
-        }
-    }
-
-    private suspend fun BehaviourContext.rollbackStateStack(key: K): Boolean {
-        val stateStack = stateRepository.rollback(key) ?: return false
-        onStateStackUpdated(key, stateStack, true)
-        return true
-    }
-
-    private fun setStateStackQuietly(key: K, stateStack: List<BS>) {
-        stateRepository.set(key, stateStack)
-    }
-
-    inner class StateHolder<S : BS>(
-        val stack: List<BS>,
-        private val key: K,
-        private val behaviourContext: BehaviourContext,
-        val isRollingBack: Boolean
-    ) {
-        val snapshot: S get() = stack.last() as S
-        val level: Int get() = stack.lastIndex
-
-        suspend fun push(state: BS) {
-            val stateStack = getStateStack(key)
-            check(stateStack.lastIndex == level)
-            with(behaviourContext) {
-                setStateStack(key, stateStack + state)
-            }
-        }
-
-        suspend fun popAndOverride(override: (BS) -> BS) {
-            val stateStack = getStateStack(key)
-            check(stateStack.lastIndex == level)
-            val newStateStack = stateStack.dropLast(1).let {
-                it.dropLast(1) + override(it.last())
-            }
-            with(behaviourContext) {
-                setStateStack(key, newStateStack)
-            }
-        }
-
-        suspend fun override(block: S.() -> BS) {
-            with(behaviourContext) {
-                setStateStack(key, overridden(block))
-            }
-        }
-
-        fun overrideQuietly(block: S.() -> BS) {
-            setStateStackQuietly(key, overridden(block))
-        }
-
-        suspend fun rollback(): Boolean {
-            return with(behaviourContext) {
-                rollbackStateStack(key)
-            }
-        }
-
-        private fun overridden(block: S.() -> BS): List<BS> {
-            val stateStack = getStateStack(key)
-            check(stateStack.lastIndex == level)
-            return stateStack.dropLast(1) + block(snapshot)
-        }
     }
 }

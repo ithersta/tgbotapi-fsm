@@ -1,7 +1,11 @@
 # Changelog
 
-## 0.23.0 (2023-02-03)
+## 0.24.0 (2023-02-08)
 
+### Added
+- Extract some state machine functionality into `RegularEngine` for better testing capabilities
+
+## 0.23.0 (2023-02-03)
 
 ### Added
 - `state.isRollingBack` property

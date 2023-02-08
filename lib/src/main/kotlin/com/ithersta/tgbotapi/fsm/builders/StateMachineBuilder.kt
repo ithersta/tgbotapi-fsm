@@ -1,10 +1,9 @@
 package com.ithersta.tgbotapi.fsm.builders
 
 import com.ithersta.tgbotapi.fsm.FsmDsl
-import com.ithersta.tgbotapi.fsm.entities.ExceptionHandler
 import com.ithersta.tgbotapi.fsm.entities.RoleFilter
 import com.ithersta.tgbotapi.fsm.entities.StateMachine
-import com.ithersta.tgbotapi.fsm.repository.StateRepository
+import com.ithersta.tgbotapi.fsm.engines.repository.StateRepository
 import dev.inmo.tgbotapi.extensions.utils.fromUserOrNull
 import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.types.commands.BotCommandScope
@@ -14,7 +13,6 @@ import org.koin.core.component.KoinComponent
 
 @FsmDsl
 class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
-    private var exceptionHandler: ExceptionHandler<K>? = null
     private val filters = mutableListOf<RoleFilter<BS, BU, *, K>>()
 
     inline fun <reified U : BU> role(noinline block: RoleFilterBuilder<BS, BU, U, K>.() -> Unit) {
@@ -29,74 +27,34 @@ class StateMachineBuilder<BS : Any, BU : Any, K : Any> : KoinComponent {
         filters += RoleFilterBuilder<BS, BU, U, K>(map).apply(block).build()
     }
 
-    fun onException(exceptionHandler: ExceptionHandler<K>) {
-        check(this.exceptionHandler == null)
-        this.exceptionHandler = exceptionHandler
-    }
-
     fun build(
-        getKey: (Update) -> K?,
-        getUser: (K) -> BU,
-        getScope: (K) -> BotCommandScope,
-        stateRepository: StateRepository<K, BS>,
         initialState: BS,
         includeHelp: Boolean
     ): StateMachine<BS, BU, K> {
         return StateMachine(
             filters,
             includeHelp,
-            getKey,
-            getUser,
-            getScope,
-            stateRepository,
-            initialState,
-            exceptionHandler
+            initialState
         )
     }
 }
 
 inline fun <reified BS : Any, BU : Any, K : Any> stateMachine(
-    noinline getKey: (Update) -> K?,
-    noinline getUser: (K) -> BU,
-    noinline getScope: (K) -> BotCommandScope,
-    stateRepository: StateRepository<K, BS>,
     initialState: BS,
     includeHelp: Boolean = false,
     block: StateMachineBuilder<BS, BU, K>.() -> Unit
 ) = StateMachineBuilder<BS, BU, K>()
     .apply(block)
-    .build(getKey, getUser, getScope, stateRepository, initialState, includeHelp)
+    .build(initialState, includeHelp)
 
-@OptIn(PreviewFeature::class)
-inline fun <reified BS : Any, BU : Any> stateMachine(
-    noinline getUser: (UserId) -> BU,
-    stateRepository: StateRepository<UserId, BS>,
+inline fun <reified BS : Any, K : Any> rolelessStateMachine(
     initialState: BS,
     includeHelp: Boolean = false,
-    block: StateMachineBuilder<BS, BU, UserId>.() -> Unit
+    crossinline block: RoleFilterBuilder<BS, Unit, Unit, K>.() -> Unit
 ) = stateMachine(
-    getKey = { it.data.fromUserOrNull()?.from?.id },
-    getScope = { BotCommandScope.Chat(it) },
-    getUser = getUser,
-    stateRepository = stateRepository,
-    initialState = initialState,
-    includeHelp = includeHelp,
-    block = block
-)
-
-inline fun <reified BS : Any> rolelessStateMachine(
-    stateRepository: StateRepository<UserId, BS>,
-    initialState: BS,
-    noinline onException: ExceptionHandler<UserId>,
-    includeHelp: Boolean = false,
-    crossinline block: RoleFilterBuilder<BS, Unit, Unit, UserId>.() -> Unit
-) = stateMachine(
-    getUser = {},
-    stateRepository = stateRepository,
     initialState = initialState,
     includeHelp = includeHelp
 ) {
-    onException(onException)
     anyRole {
         block()
     }

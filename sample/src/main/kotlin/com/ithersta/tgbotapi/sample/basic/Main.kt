@@ -3,6 +3,8 @@ package com.ithersta.tgbotapi.sample.basic
 import com.ithersta.tgbotapi.commands.cancelCommand
 import com.ithersta.tgbotapi.commands.fallback
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
+import com.ithersta.tgbotapi.fsm.engines.regularEngine
+import com.ithersta.tgbotapi.fsm.engines.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.fsm.entities.triggers.*
 import com.ithersta.tgbotapi.menu.builders.menu
 import com.ithersta.tgbotapi.pagination.PagerState
@@ -13,6 +15,7 @@ import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.row
+import dev.inmo.tgbotapi.types.UserId
 
 sealed interface User
 object Admin : User
@@ -20,15 +23,10 @@ object EmptyUser : User
 
 val strings = (1..100).map { it.toString() }
 
-private val stateMachine = stateMachine<DialogState, User>(
-    getUser = { EmptyUser },
-    stateRepository = SqliteStateRepository.create(historyDepth = 3),
+private val stateMachine = stateMachine<DialogState, User, UserId>(
     initialState = EmptyState,
     includeHelp = true
 ) {
-    onException { userId, throwable ->
-        sendTextMessage(userId, throwable.toString())
-    }
     cancelCommand(EmptyState)
     anyRole {
         anyState {
@@ -161,6 +159,10 @@ private val stateMachine = stateMachine<DialogState, User>(
 
 suspend fun main() {
     telegramBot(System.getenv("TOKEN")).buildBehaviourWithLongPolling {
-        stateMachine.apply { collect() }
+        stateMachine.regularEngine(
+            getUser = { EmptyUser },
+            stateRepository = InMemoryStateRepositoryImpl(historyDepth = 3),
+            exceptionHandler = { _, throwable -> throwable.printStackTrace() }
+        ).apply { collectUpdates() }
     }.join()
 }

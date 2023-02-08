@@ -1,6 +1,7 @@
 package com.ithersta.tgbotapi.sample.helloworld
 
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
+import com.ithersta.tgbotapi.fsm.engines.regularEngine
 import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.fsm.entities.triggers.onEnter
 import com.ithersta.tgbotapi.fsm.entities.triggers.onText
@@ -9,10 +10,9 @@ import com.ithersta.tgbotapi.sample.multiplechoice.*
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
+import dev.inmo.tgbotapi.types.UserId
 
-val stateMachine = stateMachine<DialogState, _>(
-    getUser = { },
-    stateRepository = SqliteStateRepository.create(historyDepth = 3),
+val stateMachine = stateMachine<DialogState, _, UserId>(
     initialState = EmptyState,
     includeHelp = true,
 ) {
@@ -38,6 +38,10 @@ val stateMachine = stateMachine<DialogState, _>(
 
 suspend fun main() {
     telegramBot(System.getenv("TOKEN")).buildBehaviourWithLongPolling {
-        stateMachine.apply { collect() }
+        stateMachine.regularEngine(
+            getUser = { },
+            stateRepository = SqliteStateRepository.create(historyDepth = 3),
+            exceptionHandler = { _, throwable -> throwable.printStackTrace() }
+        ).apply { collectUpdates() }
     }.join()
 }

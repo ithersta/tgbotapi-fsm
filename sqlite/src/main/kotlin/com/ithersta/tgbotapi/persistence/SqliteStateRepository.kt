@@ -1,6 +1,6 @@
 package com.ithersta.tgbotapi.persistence
 
-import com.ithersta.tgbotapi.fsm.repository.StateRepository
+import com.ithersta.tgbotapi.fsm.engines.repository.StateRepository
 import dev.inmo.tgbotapi.types.UserId
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.protobuf.ProtoBuf

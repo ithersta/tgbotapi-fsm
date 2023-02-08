@@ -1,4 +1,4 @@
-package com.ithersta.tgbotapi.fsm.repository
+package com.ithersta.tgbotapi.fsm.engines.repository
 
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
