@@ -1,15 +1,9 @@
 package com.ithersta.tgbotapi.test
 
 import com.ithersta.tgbotapi.fsm.entities.StateMachine
-import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviour
-import dev.inmo.tgbotapi.requests.send.SendTextMessage
 import dev.inmo.tgbotapi.types.UserId
-import dev.inmo.tgbotapi.types.message.content.TextMessage
 import dev.inmo.tgbotapi.types.update.abstracts.Update
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 
 class TestEngine<BS : Any, BU : Any, K : Any> internal constructor(
@@ -23,11 +17,7 @@ class TestEngine<BS : Any, BU : Any, K : Any> internal constructor(
     val state: BS get() = stateStack.last()
 
     suspend fun dispatch(update: Update) {
-        val telegramBot = mockk<TelegramBot>(relaxed = true)
-        val textMessage = mockk<TextMessage>()
-        every { textMessage.messageId } returns 0L
-        coEvery { telegramBot.execute(any<SendTextMessage>()) } returns textMessage
-        val behaviourContext = telegramBot.buildBehaviour {}
+        val behaviourContext = mockTelegramBot.buildBehaviour {}
         with(stateMachine) {
             behaviourContext.dispatch(
                 update = update,

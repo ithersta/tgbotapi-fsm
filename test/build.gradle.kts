@@ -11,6 +11,7 @@ repositories {
 version = "0.1.0"
 
 dependencies {
+    implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.tgbotapi.fsm)
     implementation("io.ktor:ktor-client-mock:2.2.3")
     implementation("io.mockk:mockk:1.13.4")
