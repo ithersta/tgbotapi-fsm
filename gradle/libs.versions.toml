@@ -1,7 +1,7 @@
 [versions]
 tgbotapi-fsm = "0.24.0"
 inmo-tgbotapi = "5.0.1"
-koin = "3.3.2"
+koin = "3.3.3"
 
 [libraries]
 inmo-tgbotapi = { module = "dev.inmo:tgbotapi", version.ref = "inmo-tgbotapi" }
