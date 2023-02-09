@@ -9,4 +9,4 @@ sealed interface DialogState
 object EmptyState : DialogState
 
 @Serializable
-class CounterState(val number: Int = 0) : DialogState
+data class CounterState(val number: Int = 0) : DialogState

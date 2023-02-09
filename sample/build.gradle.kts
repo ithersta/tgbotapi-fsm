@@ -10,7 +10,7 @@ dependencies {
     implementation(project(":lib"))
     implementation(project(":sqlite"))
     implementation(project(":commands"))
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testImplementation(kotlin("test"))
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation(project(":test"))
 }

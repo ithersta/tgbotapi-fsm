@@ -4,6 +4,7 @@ import com.ithersta.tgbotapi.test.receiveDataQuery
 import com.ithersta.tgbotapi.test.receiveTextMessage
 import com.ithersta.tgbotapi.test.test
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class TestStateMachine {
     @Test
@@ -11,11 +12,11 @@ class TestStateMachine {
         user = Unit,
         initialState = EmptyState
     ) {
-        assert(state == EmptyState)
+        assertEquals(EmptyState, state)
         receiveTextMessage("/start")
-        assert((state as MultipleChoiceState).selectedClothes == emptySet<Clothes>())
+        assertEquals(MultipleChoiceState(emptySet(), 0L), state)
         receiveDataQuery(SelectQuery(Clothes.Hat))
-        assert((state as MultipleChoiceState).selectedClothes == setOf(Clothes.Hat))
+        assertEquals(MultipleChoiceState(setOf(Clothes.Hat), 0L), state)
     }
 }
 

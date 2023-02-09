@@ -1,6 +1,7 @@
 package com.ithersta.tgbotapi.test
 
 import com.ithersta.tgbotapi.fsm.entities.StateMachine
+import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviour
 import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.types.update.abstracts.Update
@@ -10,6 +11,7 @@ class TestEngine<BS : Any, BU : Any, K : Any> internal constructor(
     private val stateMachine: StateMachine<BS, BU, K>,
     private val user: BU,
     private val key: K,
+    private val bot: TelegramBot,
     initialState: BS
 ) {
     private val stateStackHistory = ArrayDeque(listOf(listOf(initialState)))
@@ -17,7 +19,7 @@ class TestEngine<BS : Any, BU : Any, K : Any> internal constructor(
     val state: BS get() = stateStack.last()
 
     suspend fun dispatch(update: Update) {
-        val behaviourContext = mockTelegramBot.buildBehaviour {}
+        val behaviourContext = bot.buildBehaviour {}
         with(stateMachine) {
             behaviourContext.dispatch(
                 update = update,
@@ -40,27 +42,32 @@ class TestEngine<BS : Any, BU : Any, K : Any> internal constructor(
 fun <BS : Any, BU : Any, K : Any> StateMachine<BS, BU, K>.testEngine(
     user: BU,
     key: K,
-    initialState: BS
+    initialState: BS,
+    bot: TelegramBot = mockTelegramBot
 ) = TestEngine(
     stateMachine = this,
     user = user,
     key = key,
-    initialState = initialState
+    initialState = initialState,
+    bot = bot
 )
 
 fun <BS : Any, BU : Any> StateMachine<BS, BU, UserId>.testEngine(
     user: BU,
-    initialState: BS
+    initialState: BS,
+    bot: TelegramBot = mockTelegramBot
 ) = testEngine(
     user = user,
     key = UserId(0L),
-    initialState = initialState
+    initialState = initialState,
+    bot = bot
 )
 
 fun <BS : Any, BU : Any> StateMachine<BS, BU, UserId>.test(
     user: BU,
     initialState: BS,
+    bot: TelegramBot = mockTelegramBot,
     block: suspend TestEngine<BS, BU, UserId>.() -> Unit
 ) {
-    runBlocking { testEngine(user, initialState).block() }
+    runBlocking { testEngine(user, initialState, bot).block() }
 }
