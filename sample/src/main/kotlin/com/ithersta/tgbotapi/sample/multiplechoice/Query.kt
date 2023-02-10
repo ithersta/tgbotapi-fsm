@@ -3,8 +3,7 @@ package com.ithersta.tgbotapi.sample.multiplechoice
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
-sealed interface Query
+interface Query
 
 @Serializable
 @SerialName("s")

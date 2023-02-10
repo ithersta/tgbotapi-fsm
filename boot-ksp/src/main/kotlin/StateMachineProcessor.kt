@@ -89,8 +89,10 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
             val sqliteStateRepositoryType = ClassName("com.ithersta.tgbotapi.persistence", "SqliteStateRepository")
             val parametrizedSqliteStateRepositoryType = sqliteStateRepositoryType
                 .parameterizedBy(baseStateType)
+            val experimentalSerializationApi = ClassName("kotlinx.serialization", "ExperimentalSerializationApi")
             val file = FileSpec
-                .builder(packageName = packageName, fileName = "Repository")
+                .scriptBuilder(packageName = packageName, fileName = "Repository")
+                .addStatement("@OptIn(%T::class)", experimentalSerializationApi)
                 .addFunction(
                     FunSpec.builder("sqliteStateRepository")
                         .addParameter("historyDepth", Int::class.asTypeName())
@@ -107,9 +109,11 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
 
         private fun generateSerializersModule(packageName: String, baseStateType: TypeName, baseQueryType: TypeName) {
             val protobufType = ClassName("kotlinx.serialization.protobuf", "ProtoBuf")
+            val experimentalSerializationApi = ClassName("kotlinx.serialization", "ExperimentalSerializationApi")
             val file = FileSpec
-                .builder(packageName = packageName, fileName = "SerializersModule")
+                .scriptBuilder(packageName = packageName, fileName = "SerializersModule")
                 .addImport("kotlinx.serialization.modules", "polymorphic", "subclass")
+                .addStatement("@OptIn(%T::class)", experimentalSerializationApi)
                 .addProperty(
                     PropertySpec
                         .builder("protoBuf", ClassName("kotlinx.serialization.protobuf", "ProtoBuf"))
