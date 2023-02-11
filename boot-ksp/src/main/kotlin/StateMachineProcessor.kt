@@ -36,6 +36,44 @@ class StateMachineProcessor(val codeGenerator: CodeGenerator) : SymbolProcessor 
             generateSerializersModule(packageName, baseStateType, baseQueryType)
             generateRepository(packageName, baseStateType)
             generateCallbackQueryTriggers(packageName, baseQueryType)
+            generateMenuFun(packageName, baseStateType, baseUserType)
+        }
+
+        private fun generateMenuFun(packageName: String, baseStateType: TypeName, baseUserType: TypeName) {
+            val userTypeVariableName = TypeVariableName("U", baseUserType)
+            val originalMenuFun = MemberName("com.ithersta.tgbotapi.menu.builders", "menu")
+            val menuBuilderType = ClassName("com.ithersta.tgbotapi.menu.builders", "MenuBuilder")
+            FileSpec.builder(packageName, "Menu")
+                .addFunction(
+                    FunSpec.builder("menu")
+                        .addTypeVariable(userTypeVariableName)
+                        .addParameter("messageText", String::class)
+                        .addParameter("state", baseStateType)
+                        .addParameter(
+                            "block", LambdaTypeName.get(
+                                receiver = menuBuilderType.parameterizedBy(
+                                    baseStateType,
+                                    baseUserType,
+                                    userTypeVariableName
+                                ),
+                                returnType = Unit::class.asTypeName()
+                            )
+                        )
+                        .returns(
+                            ClassName("com.ithersta.tgbotapi.menu.entities", "Menu").parameterizedBy(
+                                baseStateType,
+                                baseUserType,
+                                userTypeVariableName
+                            )
+                        )
+                        .addStatement(
+                            "return %M(messageText = messageText, state = state, block = block)",
+                            originalMenuFun
+                        )
+                        .build()
+                )
+                .build()
+                .writeTo(codeGenerator = codeGenerator, aggregating = false)
         }
 
         private fun generateCallbackQueryTriggers(packageName: String, baseQueryType: TypeName) {
