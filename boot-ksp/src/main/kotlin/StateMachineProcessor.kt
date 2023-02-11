@@ -110,16 +110,9 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
         private fun generateSerializersModule(packageName: String, baseStateType: TypeName, baseQueryType: TypeName) {
             val protobufType = ClassName("kotlinx.serialization.protobuf", "ProtoBuf")
             val experimentalSerializationApi = ClassName("kotlinx.serialization", "ExperimentalSerializationApi")
-            val file = FileSpec
+            FileSpec
                 .scriptBuilder(packageName = packageName, fileName = "SerializersModule")
                 .addImport("kotlinx.serialization.modules", "polymorphic", "subclass")
-                .addStatement("@OptIn(%T::class)", experimentalSerializationApi)
-                .addProperty(
-                    PropertySpec
-                        .builder("protoBuf", ClassName("kotlinx.serialization.protobuf", "ProtoBuf"))
-                        .initializer("%T { serializersModule = stateMachineSerializersModule }", protobufType)
-                        .build()
-                )
                 .addProperty(
                     PropertySpec
                         .builder(
@@ -147,7 +140,18 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
                         .build()
                 )
                 .build()
-            file.writeTo(codeGenerator = codeGenerator, aggregating = false)
+                .writeTo(codeGenerator = codeGenerator, aggregating = false)
+            FileSpec
+                .scriptBuilder(packageName = packageName, fileName = "ProtoBuf")
+                .addStatement("@OptIn(%T::class)", experimentalSerializationApi)
+                .addProperty(
+                    PropertySpec
+                        .builder("protoBuf", ClassName("kotlinx.serialization.protobuf", "ProtoBuf"))
+                        .initializer("%T { serializersModule = stateMachineSerializersModule }", protobufType)
+                        .build()
+                )
+                .build()
+                .writeTo(codeGenerator = codeGenerator, aggregating = false)
         }
 
         private fun generateTypeAliases(
