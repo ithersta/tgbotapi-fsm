@@ -31,7 +31,7 @@ class StateMachineProcessor(val codeGenerator: CodeGenerator) : SymbolProcessor 
             val baseStateType = typeArguments[0].toTypeName()
             val baseUserType = typeArguments[1].toTypeName()
             val keyType = typeArguments[2].toTypeName()
-            val packageName = property.containingFile!!.packageName.asString()
+            val packageName = (property.containingFile!!.packageName.asString() + ".generated").removePrefix(".")
             generateTypeAliases(packageName, baseStateType, baseUserType, keyType)
             generateSerializersModule(packageName, baseStateType, baseQueryType)
             generateRepository(packageName, baseStateType)

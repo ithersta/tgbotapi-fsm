@@ -6,6 +6,7 @@ import com.ithersta.tgbotapi.fsm.engines.regularEngine
 import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.fsm.entities.triggers.onEnter
 import com.ithersta.tgbotapi.fsm.entities.triggers.onText
+import com.ithersta.tgbotapi.sample.helloworld.generated.sqliteStateRepository
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling

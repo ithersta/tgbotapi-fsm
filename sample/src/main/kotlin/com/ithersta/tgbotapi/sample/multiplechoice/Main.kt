@@ -6,6 +6,8 @@ import com.ithersta.tgbotapi.fsm.engines.regularEngine
 import com.ithersta.tgbotapi.fsm.engines.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.fsm.entities.triggers.onEnter
+import com.ithersta.tgbotapi.sample.multiplechoice.generated.dataButton
+import com.ithersta.tgbotapi.sample.multiplechoice.generated.onDataCallbackQuery
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.answers.answer
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
