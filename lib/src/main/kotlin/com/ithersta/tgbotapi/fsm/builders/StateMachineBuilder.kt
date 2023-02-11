@@ -3,12 +3,6 @@ package com.ithersta.tgbotapi.fsm.builders
 import com.ithersta.tgbotapi.fsm.FsmDsl
 import com.ithersta.tgbotapi.fsm.entities.RoleFilter
 import com.ithersta.tgbotapi.fsm.entities.StateMachine
-import com.ithersta.tgbotapi.fsm.engines.repository.StateRepository
-import dev.inmo.tgbotapi.extensions.utils.fromUserOrNull
-import dev.inmo.tgbotapi.types.UserId
-import dev.inmo.tgbotapi.types.commands.BotCommandScope
-import dev.inmo.tgbotapi.types.update.abstracts.Update
-import dev.inmo.tgbotapi.utils.PreviewFeature
 import org.koin.core.component.KoinComponent
 
 @FsmDsl

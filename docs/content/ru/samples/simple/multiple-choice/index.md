@@ -6,6 +6,7 @@ draft: false
 images: []
 weight: 010
 toc: false
+type: docs
 ---
 
 Сделаем бота со множественным выбором,

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.25.0 (2023-02-10)
+
+### Removed
+- `onDataCallbackQuery` with typesafe queries
+
+## 0.24.1 (2023-02-10)
+
+### Changed
+- Updated `dev.inmo:tgbotapi:inmo-tgbotapi` to 5.1.0
+
 ## 0.24.0 (2023-02-08)
 
 ### Added

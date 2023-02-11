@@ -1,12 +1,13 @@
 package com.ithersta.tgbotapi.sample.multiplechoice
 
+import com.ithersta.tgbotapi.boot.annotations.StateMachine
 import com.ithersta.tgbotapi.fsm.builders.stateMachine
 import com.ithersta.tgbotapi.fsm.engines.regularEngine
 import com.ithersta.tgbotapi.fsm.engines.repository.InMemoryStateRepositoryImpl
-import com.ithersta.tgbotapi.fsm.entities.triggers.dataButton
 import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
-import com.ithersta.tgbotapi.fsm.entities.triggers.onDataCallbackQuery
 import com.ithersta.tgbotapi.fsm.entities.triggers.onEnter
+import com.ithersta.tgbotapi.sample.multiplechoice.generated.dataButton
+import com.ithersta.tgbotapi.sample.multiplechoice.generated.onDataCallbackQuery
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.answers.answer
 import dev.inmo.tgbotapi.extensions.api.edit.reply_markup.editMessageReplyMarkup
@@ -16,6 +17,7 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.inlineKeyboard
 import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.utils.row
 
+@StateMachine(baseQueryKClass = Query::class)
 val stateMachine = stateMachine<DialogState, Unit, UserId>(
     initialState = EmptyState,
     includeHelp = true,
