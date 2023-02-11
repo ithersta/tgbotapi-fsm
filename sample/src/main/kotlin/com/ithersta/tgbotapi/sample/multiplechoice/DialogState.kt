@@ -3,8 +3,7 @@ package com.ithersta.tgbotapi.sample.multiplechoice
 import dev.inmo.tgbotapi.types.MessageId
 import kotlinx.serialization.Serializable
 
-@Serializable
-sealed interface DialogState
+interface DialogState
 
 @Serializable
 object EmptyState : DialogState

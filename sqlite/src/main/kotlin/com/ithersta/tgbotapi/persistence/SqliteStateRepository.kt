@@ -15,11 +15,12 @@ import kotlin.reflect.full.starProjectedType
 
 @OptIn(ExperimentalSerializationApi::class)
 class SqliteStateRepository<S : Any>(
-    val historyDepth: Int,
+    private val historyDepth: Int,
+    private val protoBuf: ProtoBuf,
     jdbc: String,
     stateKType: KType
 ) : StateRepository<UserId, S> {
-    val serializer = serializer(stateKType)
+    private val serializer = serializer(stateKType)
 
     init {
         Database.connect(jdbc, "org.sqlite.JDBC")
@@ -42,7 +43,7 @@ class SqliteStateRepository<S : Any>(
                 .map { it[UserStates.state] }
                 .first()
         }
-        ProtoBuf.decodeFromByteArray(serializer, serialized) as List<S>
+        protoBuf.decodeFromByteArray(serializer, serialized) as List<S>
     }.getOrNull()
 
     override fun set(key: UserId, stateStack: List<S>) {
@@ -54,7 +55,7 @@ class SqliteStateRepository<S : Any>(
             UserStates.replace {
                 it[UserStates.userId] = key.chatId
                 it[UserStates.sequenceNumber] = sequenceNumber
-                it[UserStates.state] = ProtoBuf.encodeToByteArray(serializer, stateStack)
+                it[UserStates.state] = protoBuf.encodeToByteArray(serializer, stateStack)
             }
             SequenceNumbers.replace {
                 it[SequenceNumbers.id] = key.chatId
@@ -87,15 +88,17 @@ class SqliteStateRepository<S : Any>(
                     }
                 }
         }
-        ProtoBuf.decodeFromByteArray(serializer, serialized) as List<S>
+        protoBuf.decodeFromByteArray(serializer, serialized) as List<S>
     }.getOrNull()
 
     companion object {
         inline fun <reified S : Any> create(
             historyDepth: Int,
+            protoBuf: ProtoBuf = ProtoBuf,
             jdbc: String = "jdbc:sqlite:states.db"
         ) = SqliteStateRepository<S>(
             historyDepth = historyDepth,
+            protoBuf = protoBuf,
             jdbc = jdbc,
             stateKType = List::class.createType(listOf(KTypeProjection.invariant(S::class.starProjectedType)))
         )
