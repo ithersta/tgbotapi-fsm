@@ -11,7 +11,7 @@ import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.behaviour_builder.buildBehaviourWithLongPolling
 import dev.inmo.tgbotapi.types.UserId
 
-@StateMachine(baseQueryKClass = Int::class)
+@StateMachine
 val stateMachine = stateMachine<DialogState, Unit, UserId>(
     initialState = EmptyState,
     includeHelp = true,

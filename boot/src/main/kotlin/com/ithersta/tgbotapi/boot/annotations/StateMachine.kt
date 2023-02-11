@@ -4,4 +4,4 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class StateMachine(val baseQueryKClass: KClass<out Any> = Any::class)
+annotation class StateMachine(val baseQueryKClass: KClass<*> = Nothing::class)

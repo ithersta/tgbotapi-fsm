@@ -8,7 +8,7 @@ repositories {
     mavenCentral()
 }
 
-version = "0.1.2"
+version = "0.1.3"
 
 dependencies {
     implementation(libs.ksp.api)
