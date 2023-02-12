@@ -22,7 +22,8 @@ val stateMachine = stateMachine<DialogState, Unit, UserId>(
 
 {{< alert icon="TL;DR"  >}}
 1. Можно не использовать sealed иерархию для состояний и запросов.
-2. Можно не указывать базовые типы. Например, можно писать
+2. Можно пользоваться типобезопасными Data Callback Queries.
+3. Можно не указывать базовые типы. Например, можно писать
 
 ```kotlin
 RoleFilterBuilder<User.Admin>
