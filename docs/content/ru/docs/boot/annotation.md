@@ -20,6 +20,19 @@ val stateMachine = stateMachine<DialogState, Unit, UserId>(
 
 Это включает кодогенерацию некоторых полезных вещей для этого конечного автомата.
 
+{{< alert icon="TL;DR"  >}}
+1. Можно не использовать sealed иерархию для состояний и запросов.
+2. Можно не указывать базовые типы. Например, можно писать
+
+```kotlin
+RoleFilterBuilder<User.Admin>
+```
+вместо
+```kotlin
+RoleFilterBuilder<DialogState, User, User.Admin, UserId>
+```
+{{< /alert >}}
+
 # SerializersModule
 
 Кодогенератор ищет всех наследников указанного базового состояния,
