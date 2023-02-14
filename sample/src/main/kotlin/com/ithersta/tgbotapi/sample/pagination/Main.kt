@@ -15,25 +15,26 @@ import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.utils.row
 
 @StateMachine(baseQueryKClass = Query::class)
-val stateMachine = rolelessStateMachine<DialogState, UserId>(
-    initialState = EmptyState,
-    includeHelp = true,
-) {
-    val wholeList = (0..100).toList()
-    val pager = pager("page") {
-        val paginatedList = wholeList.drop(offset).take(limit)
+val stateMachine = rolelessStateMachine<DialogState, UserId>(initialState = EmptyState) {
+    val numbers = (0..100).toList()
+    val numbersPager = pager(id = "numbers") {
+        val paginatedNumbers = numbers.drop(offset).take(limit)
         inlineKeyboard {
-            paginatedList.forEach { item ->
+            paginatedNumbers.forEach { item ->
                 row {
                     dataButton(item.toString(), SampleQuery(item))
                 }
             }
-            navigationRow(itemCount = wholeList.size)
+            navigationRow(itemCount = numbers.size)
         }
     }
     anyState {
         onCommand("pager", description = null) { message ->
-            send(message.chat, text = "Pagination", replyMarkup = pager.replyMarkup)
+            send(
+                chat = message.chat,
+                text = "Numbers",
+                replyMarkup = numbersPager.replyMarkup
+            )
         }
     }
 }
