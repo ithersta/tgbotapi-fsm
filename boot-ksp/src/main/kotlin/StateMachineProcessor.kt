@@ -198,8 +198,8 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
             baseUserType: TypeName,
             keyType: TypeName
         ) {
-            val stateTypeVariableName = TypeVariableName("State")
-            val userTypeVariableName = TypeVariableName("User")
+            val stateTypeVariableName = TypeVariableName("S")
+            val userTypeVariableName = TypeVariableName("U")
             val file = FileSpec
                 .builder(packageName = packageName, fileName = "TypeAliases")
                 .addTypeAlias(
