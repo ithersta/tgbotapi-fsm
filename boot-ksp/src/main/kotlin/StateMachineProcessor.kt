@@ -3,10 +3,14 @@ import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.toAnnotationSpec
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
 
-class StateMachineProcessor(val codeGenerator: CodeGenerator) : SymbolProcessor {
+class StateMachineProcessor(
+    val codeGenerator: CodeGenerator,
+    val logger: KSPLogger
+) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver
             .getSymbolsWithAnnotation("com.ithersta.tgbotapi.boot.annotations.StateMachine")
@@ -27,6 +31,7 @@ class StateMachineProcessor(val codeGenerator: CodeGenerator) : SymbolProcessor 
             val baseQueryType = (property.annotations.first {
                 it.annotationType.toTypeName() == ClassName("com.ithersta.tgbotapi.boot.annotations", "StateMachine")
             }.arguments[0].value as KSType).toTypeName()
+            verifyQueries(baseQueryType)
             val typeArguments = property.getter!!.returnType!!.element!!.typeArguments
             val baseStateType = typeArguments[0].toTypeName()
             val baseUserType = typeArguments[1].toTypeName()
@@ -145,6 +150,20 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
             file.writeTo(codeGenerator = codeGenerator, aggregating = false)
         }
 
+        private fun verifyQueries(baseQueryType: TypeName) {
+            val serialNameType = ClassName("kotlinx.serialization", "SerialName")
+            serializables
+                .filter { serializable ->
+                    serializable.superTypes.any { it.toTypeName() == baseQueryType }
+                }
+                .filterNot { serializable ->
+                    serializable.annotations.any { it.toAnnotationSpec().typeName == serialNameType }
+                }
+                .forEach { serializable ->
+                    logger.error("${serializable.simpleName.asString()} is missing a required @SerialName annotation")
+                }
+        }
+
         private fun generateSerializersModule(packageName: String, baseStateType: TypeName, baseQueryType: TypeName) {
             val protobufType = ClassName("kotlinx.serialization.protobuf", "ProtoBuf")
             val experimentalSerializationApi = ClassName("kotlinx.serialization", "ExperimentalSerializationApi")
@@ -246,6 +265,6 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
 
 class StateMachineProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-        return StateMachineProcessor(environment.codeGenerator)
+        return StateMachineProcessor(environment.codeGenerator, environment.logger)
     }
 }
