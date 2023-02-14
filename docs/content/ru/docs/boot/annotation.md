@@ -5,7 +5,7 @@ lead: ""
 draft: false
 images: []
 weight: 110
-toc: false
+toc: true
 ---
 
 Аннотацией `@StateMachine` помечается свойство

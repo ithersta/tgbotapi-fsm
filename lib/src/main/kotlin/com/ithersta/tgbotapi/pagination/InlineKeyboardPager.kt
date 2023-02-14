@@ -1,6 +1,5 @@
 package com.ithersta.tgbotapi.pagination
 
-import com.ithersta.tgbotapi.fsm.BaseStatefulContext
 import com.ithersta.tgbotapi.fsm.builders.RoleFilterBuilder
 import com.ithersta.tgbotapi.fsm.entities.triggers.onDataCallbackQuery
 import dev.inmo.tgbotapi.bot.exceptions.CommonBotException
@@ -16,16 +15,13 @@ const val PREFIX = "com.ithersta.tgbotapi.pagination"
 @OptIn(PreviewFeature::class)
 class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
     private val id: String,
-    private val limit: Int = 5,
+    private val limit: Int,
     private val block: PagerBuilder<BS, BU, *, U>.() -> InlineKeyboardMarkup
 ) {
-    val BaseStatefulContext<BS, BU, *, U>.firstPage
-        get() = page(0)
+    val replyMarkup get() = page(0)
+    fun page(index: Int) = block(PagerBuilder(index, index * limit, limit, id))
 
-    fun BaseStatefulContext<BS, BU, *, U>.page(index: Int) =
-        block(PagerBuilder(index, index * limit, limit, id, this))
-
-    fun RoleFilterBuilder<BS, BU, U, UserId>.setupTriggers() {
+    internal fun RoleFilterBuilder<BS, BU, U, UserId>.setupTriggers() {
         anyState {
             onDataCallbackQuery(Regex("$PREFIX $id")) {
                 answer(it)
@@ -43,7 +39,7 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
     }
 }
 
-fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.inlineKeyboardPager(
+fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.pager(
     id: String,
     limit: Int = 5,
     block: PagerBuilder<BS, BU, *, U>.() -> InlineKeyboardMarkup

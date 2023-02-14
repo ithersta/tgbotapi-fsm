@@ -64,25 +64,12 @@ imageAddClass = "img-fluid lazyload blur-up"
 defaultImage = "default-image.png" # put in `./assets/images/`
 fillImage = "1270x740 Center" # normalize image size
 
-# Footer
 footer = ""
 
-# Feed
-copyRight = "Copyright (c) 2020-2021 Henk Verlinde"
-
-# Alert
-alert = false
-alertDismissable = true
-# alertText = "Introducing the Doks child theme, several DX + UX updates, and more! <a class=\"alert-link stretched-link\" href=\"https://getdoks.org/blog/doks-v0.2/\" target=\"_blank\" rel=\"noopener\">Check out Doks v0.2</a>"
-alertText = "Introducing the Doks child theme, several DX + UX updates, and more! <a class=\"alert-link stretched-link\" href=\"https://getdoks.org/blog/doks-v0.2/\">Check out Doks v0.2</a>"
-
-# Edit Page
-# repoHost [Github | Gitea | GitLab | Bitbucket | BitbucketServer ] is used for building the edit link based on git hoster
 repoHost = "GitHub"
-#repoHost = "Gitea"
-docsRepo = "https://github.com/h-enk/doks"
-docsRepoBranch = "master"
-docsRepoSubPath = ""
+docsRepo = "https://github.com/ithersta/tgbotapi-fsm"
+docsRepoBranch = "main"
+docsRepoSubPath = "docs"
 editPage = false
 lastMod = false
 

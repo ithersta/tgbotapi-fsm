@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.26.0 (2023-02-14)
+
+### Changed
+- Simplify pagination
+
 ## 0.25.0 (2023-02-10)
 
 ### Removed

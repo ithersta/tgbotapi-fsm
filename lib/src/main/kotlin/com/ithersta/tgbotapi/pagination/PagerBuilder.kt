@@ -1,6 +1,5 @@
 package com.ithersta.tgbotapi.pagination
 
-import com.ithersta.tgbotapi.fsm.BaseStatefulContext
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.InlineKeyboardBuilder
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.utils.row
@@ -9,9 +8,8 @@ class PagerBuilder<BS : Any, BU : Any, S : BS, U : BU>(
     val page: Int,
     val offset: Int,
     val limit: Int,
-    private val id: String,
-    context: BaseStatefulContext<BS, BU, S, U>
-) : BaseStatefulContext<BS, BU, S, U> by context {
+    private val id: String
+) {
     fun InlineKeyboardBuilder.navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") {
         val maxPage = ((itemCount - 1) / limit).coerceAtLeast(0)
         if (maxPage == 0 && page == 0) return

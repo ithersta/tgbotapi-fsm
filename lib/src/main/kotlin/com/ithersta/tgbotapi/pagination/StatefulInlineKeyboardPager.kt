@@ -7,7 +7,6 @@ import dev.inmo.tgbotapi.extensions.api.answers.answer
 import dev.inmo.tgbotapi.extensions.api.edit.text.editMessageText
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.extensions.utils.asMessageCallbackQuery
-import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.IdChatIdentifier
 import dev.inmo.tgbotapi.types.MessageIdentifier
 import dev.inmo.tgbotapi.types.UserId
@@ -35,10 +34,15 @@ class StatefulInlineKeyboardPager<BS : Any, BU : Any, S : BS, U : BU>(
     ) {
         val page = pagerState.page
         val offset = page * limit
-        val inlineKeyboard = block(PagerBuilder(page, offset, limit, id, this))
+        val inlineKeyboard = block(PagerBuilder(page, offset, limit, id))
         if (pagerState.messageId == null) {
             val messageId = sendTextMessage(idChatIdentifier, text, replyMarkup = inlineKeyboard).messageId
-            state.overrideQuietly { onPagerStateChanged(this@sendOrEditMessage, PagerState(pagerState.page, messageId)) }
+            state.overrideQuietly {
+                onPagerStateChanged(
+                    this@sendOrEditMessage,
+                    PagerState(pagerState.page, messageId)
+                )
+            }
         } else {
             runCatching {
                 editMessageText(idChatIdentifier, pagerState.messageId, text, replyMarkup = inlineKeyboard)
@@ -61,7 +65,7 @@ class StatefulInlineKeyboardPager<BS : Any, BU : Any, S : BS, U : BU>(
     }
 }
 
-fun <BS : Any, BU : Any, S : BS, U : BU> StateFilterBuilder<BS, BU, S, U, UserId>.statefulInlineKeyboardPager(
+fun <BS : Any, BU : Any, S : BS, U : BU> StateFilterBuilder<BS, BU, S, U, UserId>.statefulPager(
     id: String,
     limit: Int = 5,
     onPagerStateChanged: BaseStatefulContext<BS, BU, S, U>.(PagerState) -> BS,
