@@ -102,7 +102,7 @@ val Base64Encoder: Base64.Encoder = Base64.getEncoder()
 val Base64Decoder: Base64.Decoder = Base64.getDecoder()
                             
 @OptIn(PreviewFeature::class, ExperimentalSerializationApi::class)
-inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·Q·:·%T>·StateFilterBuilder<BS,·BU,·S,·U,·K>.onDataCallbackQuery(
+inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reified·Q·:·%T>·StateFilterBuilder<BS,·BU,·S,·U,·K>.onDataCallbackQuery(
     kClass: KClass<Q>,
     crossinline filter: (Pair<Q, DataCallbackQuery>) -> Boolean = { true },
     noinline handler: Handler<BS, BU, S, U, Pair<Q, DataCallbackQuery>>
@@ -111,7 +111,12 @@ inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·Q·:·
         ?.let {
             runCatching {
                 val byteArray = Base64Decoder.decode(it.data)
-                protoBuf.decodeFromByteArray<%T>(byteArray) as Q to it
+                val data = protoBuf.decodeFromByteArray<%T>(byteArray)
+                if (data is Q) {
+                    data to it
+                } else {
+                    null
+                }
             }.getOrNull()
         }
         ?.takeIf(filter)
