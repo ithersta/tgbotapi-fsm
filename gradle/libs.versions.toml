@@ -1,6 +1,6 @@
 [versions]
 tgbotapi-fsm = "0.26.0"
-tgbotapi-sqlite = "0.6.0"
+tgbotapi-sqlite = "0.6.1"
 inmo-tgbotapi = "5.1.0"
 koin = "3.3.3"
 ksp = "1.8.10-1.0.9"

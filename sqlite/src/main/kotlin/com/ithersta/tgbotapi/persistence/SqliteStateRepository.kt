@@ -21,16 +21,17 @@ class SqliteStateRepository<S : Any>(
     stateKType: KType
 ) : StateRepository<UserId, S> {
     private val serializer = serializer(stateKType)
+    private val db: Database
 
     init {
-        Database.connect(jdbc, "org.sqlite.JDBC")
-        transaction {
+        db = Database.connect(jdbc, "org.sqlite.JDBC")
+        transaction(db) {
             SchemaUtils.createMissingTablesAndColumns(UserStates, SequenceNumbers)
         }
     }
 
     override fun get(key: UserId): List<S>? = runCatching {
-        val serialized = transaction {
+        val serialized = transaction(db) {
             val sequenceNumber = SequenceNumbers
                 .select { SequenceNumbers.id eq key.chatId }
                 .map { it[SequenceNumbers.sequenceNumber] }
@@ -47,7 +48,7 @@ class SqliteStateRepository<S : Any>(
     }.getOrNull()
 
     override fun set(key: UserId, stateStack: List<S>) {
-        transaction {
+        transaction(db) {
             val sequenceNumber = SequenceNumbers
                 .select { SequenceNumbers.id eq key.chatId }
                 .map { it[SequenceNumbers.sequenceNumber] }
@@ -69,7 +70,7 @@ class SqliteStateRepository<S : Any>(
     }
 
     override fun rollback(key: UserId): List<S>? = runCatching {
-        val serialized = transaction {
+        val serialized = transaction(db) {
             val sequenceNumber = SequenceNumbers
                 .select { SequenceNumbers.id eq key.chatId }
                 .map { it[SequenceNumbers.sequenceNumber] }
