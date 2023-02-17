@@ -94,12 +94,8 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.types.queries.callback.DataCallbackQuery
 import dev.inmo.tgbotapi.utils.PreviewFeature
 import kotlinx.serialization.*
-import java.util.*
 import kotlin.reflect.KClass
 import com.ithersta.tgbotapi.fsm.entities.triggers.*
-
-val Base64Encoder: Base64.Encoder = Base64.getEncoder()
-val Base64Decoder: Base64.Decoder = Base64.getDecoder()
                             
 @OptIn(PreviewFeature::class, ExperimentalSerializationApi::class)
 inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reified·Q·:·%T>·StateFilterBuilder<BS,·BU,·S,·U,·K>.onDataCallbackQuery(
@@ -110,7 +106,7 @@ inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reifie
     asCallbackQueryUpdate()?.data?.asDataCallbackQuery()
         ?.let {
             runCatching {
-                val byteArray = Base64Decoder.decode(it.data)
+                val byteArray = it.data.toByteArray(Charsets.UTF_8)
                 val data = protoBuf.decodeFromByteArray<%T>(byteArray)
                 if (data is Q) {
                     data to it
@@ -125,7 +121,11 @@ inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reifie
 @OptIn(ExperimentalSerializationApi::class)
 inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, data: Q): Boolean {
     val byteArray = protoBuf.encodeToByteArray<%T>(data)
-    return dataButton(text, Base64Encoder.encodeToString(byteArray))
+    return if (byteArray.size <= 64) {
+        dataButton(text, byteArray.toString(Charsets.UTF_8))
+    } else {
+        dataButton("DATA IS TOO LARGE (" + byteArray.size + " bytes > 64 bytes)", "Invalid data")
+    }
 }""", baseQueryType, baseQueryType, baseQueryType, baseQueryType
                     )
                 )

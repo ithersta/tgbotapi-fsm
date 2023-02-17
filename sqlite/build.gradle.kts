@@ -8,6 +8,10 @@ repositories {
     mavenCentral()
 }
 
+java {
+    withSourcesJar()
+}
+
 version = libs.versions.tgbotapi.sqlite.get()
 
 dependencies {

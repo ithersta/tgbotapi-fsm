@@ -8,12 +8,16 @@ repositories {
     mavenCentral()
 }
 
-version = "0.1.7"
+version = "0.1.8"
 
 dependencies {
     implementation(libs.ksp.api)
     implementation(libs.kotlinpoet)
     implementation(libs.kotlinpoet.ksp)
+}
+
+java {
+    withSourcesJar()
 }
 
 publishing {

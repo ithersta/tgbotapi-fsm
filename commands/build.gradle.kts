@@ -8,6 +8,10 @@ repositories {
     mavenCentral()
 }
 
+java {
+    withSourcesJar()
+}
+
 version = "0.2.0"
 
 dependencies {

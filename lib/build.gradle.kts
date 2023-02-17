@@ -13,6 +13,10 @@ dependencies {
     api(libs.koin.core)
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
