@@ -78,7 +78,7 @@ class StateMachineProcessor(
                         .build()
                 )
                 .build()
-                .writeTo(codeGenerator = codeGenerator, aggregating = false)
+                .writeTo(codeGenerator = codeGenerator, aggregating = true)
         }
 
         private fun generateCallbackQueryTriggers(packageName: String, baseQueryType: TypeName) {
@@ -130,7 +130,7 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
                     )
                 )
                 .build()
-            file.writeTo(codeGenerator = codeGenerator, aggregating = false)
+            file.writeTo(codeGenerator = codeGenerator, aggregating = true)
         }
 
         private fun generateRepository(packageName: String, baseStateType: TypeName) {
@@ -152,7 +152,7 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
                         .build()
                 )
                 .build()
-            file.writeTo(codeGenerator = codeGenerator, aggregating = false)
+            file.writeTo(codeGenerator = codeGenerator, aggregating = true)
         }
 
         private fun verifyQueries(baseQueryType: TypeName) {
@@ -202,7 +202,7 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
                         .build()
                 )
                 .build()
-                .writeTo(codeGenerator = codeGenerator, aggregating = false)
+                .writeTo(codeGenerator = codeGenerator, aggregating = true)
             FileSpec
                 .scriptBuilder(packageName = packageName, fileName = "ProtoBuf")
                 .addStatement("@OptIn(%T::class)", experimentalSerializationApi)
@@ -213,7 +213,7 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
                         .build()
                 )
                 .build()
-                .writeTo(codeGenerator = codeGenerator, aggregating = false)
+                .writeTo(codeGenerator = codeGenerator, aggregating = true)
         }
 
         private fun generateTypeAliases(
@@ -263,7 +263,7 @@ inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, da
                         .build()
                 )
                 .build()
-            file.writeTo(codeGenerator = codeGenerator, aggregating = false)
+            file.writeTo(codeGenerator = codeGenerator, aggregating = true)
         }
     }
 }
