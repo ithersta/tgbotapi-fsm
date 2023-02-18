@@ -13,11 +13,12 @@ java {
     withSourcesJar()
 }
 
-version = "0.1.2"
+version = "0.1.3"
 
 dependencies {
     api(libs.tgbotapi.fsm)
     api(libs.tgbotapi.sqlite)
+    testImplementation(kotlin("test"))
 }
 
 publishing {
