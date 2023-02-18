@@ -106,7 +106,7 @@ inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reifie
     asCallbackQueryUpdate()?.data?.asDataCallbackQuery()
         ?.let {
             runCatching {
-                val byteArray = it.data.toByteArray(Charsets.UTF_8)
+                val byteArray = it.data.toByteArray(Charsets.ISO_8859_1)
                 val data = protoBuf.decodeFromByteArray<%T>(byteArray)
                 if (data is Q) {
                     data to it
@@ -122,7 +122,7 @@ inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reifie
 inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, data: Q): Boolean {
     val byteArray = protoBuf.encodeToByteArray<%T>(data)
     return if (byteArray.size <= 64) {
-        dataButton(text, byteArray.toString(Charsets.UTF_8))
+        dataButton(text, byteArray.toString(Charsets.ISO_8859_1))
     } else {
         dataButton("DATA IS TOO LARGE (" + byteArray.size + " bytes > 64 bytes)", "Invalid data")
     }
