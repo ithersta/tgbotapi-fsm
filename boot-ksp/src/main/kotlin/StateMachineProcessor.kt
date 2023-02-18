@@ -123,10 +123,11 @@ inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reifie
 inline fun <reified Q : %T> InlineKeyboardRowBuilder.dataButton(text: String, data: Q): Boolean {
     val byteArray = protoBuf.encodeToByteArray<%T>(data)
     val str = Base122.encode(byteArray)
-    return if (str.toByteArray(Charsets.UTF_8).size <= 64) {
+    val size = str.toByteArray(Charsets.UTF_8).size
+    return if (size <= 64) {
         dataButton(text, str)
     } else {
-        dataButton("DATA IS TOO LARGE (" + byteArray.size + " bytes > 64 bytes)", "Invalid data")
+        dataButton("DATA IS TOO LARGE (" + size + " bytes > 64 bytes)", "Invalid data")
     }
 }""", baseQueryType, baseQueryType, baseQueryType, baseQueryType
                     )
