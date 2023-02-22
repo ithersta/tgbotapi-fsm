@@ -13,15 +13,15 @@ import dev.inmo.tgbotapi.utils.PreviewFeature
 const val PREFIX = "com.ithersta.tgbotapi.pagination"
 
 @OptIn(PreviewFeature::class)
-class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
+class InlineKeyboardPager(
     private val id: String,
     private val limit: Int,
-    private val block: PagerBuilder<BS, BU, *, U>.() -> InlineKeyboardMarkup
+    private val block: PagerBuilder.() -> InlineKeyboardMarkup
 ) {
     val replyMarkup get() = page(0)
     fun page(index: Int) = block(PagerBuilder(index, index * limit, limit, id))
 
-    internal fun RoleFilterBuilder<BS, BU, U, UserId>.setupTriggers() {
+    internal fun RoleFilterBuilder<*, *, *, UserId>.setupTriggers() {
         anyState {
             onDataCallbackQuery(Regex("$PREFIX $id")) {
                 answer(it)
@@ -42,8 +42,8 @@ class InlineKeyboardPager<BS : Any, BU : Any, U : BU>(
 fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.pager(
     id: String,
     limit: Int = 5,
-    block: PagerBuilder<BS, BU, *, U>.() -> InlineKeyboardMarkup
-): InlineKeyboardPager<BS, BU, U> {
+    block: PagerBuilder.() -> InlineKeyboardMarkup
+): InlineKeyboardPager {
     return InlineKeyboardPager(id, limit, block).also {
         with(it) { setupTriggers() }
     }

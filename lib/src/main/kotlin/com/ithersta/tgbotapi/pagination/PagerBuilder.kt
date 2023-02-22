@@ -4,7 +4,7 @@ import dev.inmo.tgbotapi.extensions.utils.types.buttons.InlineKeyboardBuilder
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.utils.row
 
-class PagerBuilder<BS : Any, BU : Any, S : BS, U : BU>(
+open class PagerBuilder(
     val page: Int,
     val offset: Int,
     val limit: Int,

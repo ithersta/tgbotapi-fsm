@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.27.0 (2023-02-22)
+
+### Changed
+- Simplify stateful pagination
+
 ## 0.26.0 (2023-02-14)
 
 ### Changed
