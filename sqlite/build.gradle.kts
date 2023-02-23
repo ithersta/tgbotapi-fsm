@@ -19,7 +19,7 @@ dependencies {
     implementation(libs.tgbotapi.fsm)
     implementation("org.jetbrains.exposed", "exposed-core", "0.41.1")
     implementation("org.jetbrains.exposed", "exposed-jdbc", "0.41.1")
-    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
+    implementation("org.xerial:sqlite-jdbc:3.41.0.0")
 }
 
 publishing {
