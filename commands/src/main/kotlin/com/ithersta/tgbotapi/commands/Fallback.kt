@@ -7,7 +7,7 @@ import dev.inmo.tgbotapi.bot.TelegramBot
 import dev.inmo.tgbotapi.extensions.api.send.sendTextMessage
 import dev.inmo.tgbotapi.types.chat.Chat
 
-fun RoleFilterBuilder<*, *, *, *>.fallback(
+fun <BS : Any> RoleFilterBuilder<BS, *, *, *>.fallback(
     action: suspend TelegramBot.(chat: Chat) -> Unit = {
         sendTextMessage(it, "Нет такой команды")
     }
@@ -15,11 +15,12 @@ fun RoleFilterBuilder<*, *, *, *>.fallback(
     anyState {
         onText { message ->
             action(message.chat)
+            state.override { this }
         }
     }
 }
 
-fun StateMachineBuilder<*, *, *>.fallback(
+fun <BS : Any> StateMachineBuilder<BS, *, *>.fallback(
     action: suspend TelegramBot.(chat: Chat) -> Unit = {
         sendTextMessage(it, "Нет такой команды")
     }
