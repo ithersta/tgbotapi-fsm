@@ -1,4 +1,4 @@
-package com.ithersta.tgbotapi.boot.encoder;
+package com.ithersta.tgbotapi.encoder;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;

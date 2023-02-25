@@ -13,12 +13,19 @@ java {
     withSourcesJar()
 }
 
-version = "0.1.4"
+version = "0.1.5"
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor(0, TimeUnit.SECONDS)
+}
 
 dependencies {
-    api(libs.tgbotapi.fsm)
-    api(libs.tgbotapi.sqlite)
-    testImplementation(kotlin("test"))
+    api(libs.tgbotapi.fsm) {
+        isChanging = true
+    }
+    api(libs.tgbotapi.sqlite) {
+        isChanging = true
+    }
 }
 
 publishing {

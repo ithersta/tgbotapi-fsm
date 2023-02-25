@@ -1,4 +1,4 @@
-package com.ithersta.tgbotapi.boot.encoder
+package com.ithersta.tgbotapi.encoder
 
 import kotlin.random.Random
 import kotlin.test.Test

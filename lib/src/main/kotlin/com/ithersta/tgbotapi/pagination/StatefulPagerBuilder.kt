@@ -8,4 +8,4 @@ class StatefulPagerBuilder<BS : Any, BU : Any, S : BS, U : BU>(
     limit: Int,
     id: String,
     private val statefulContext: BaseStatefulContext<BS, BU, S, U>
-) : PagerBuilder(page, offset, limit, id), BaseStatefulContext<BS, BU, S, U> by statefulContext
+) : PagerBuilder<Unit>(page, offset, limit, Unit, Unit::class, id), BaseStatefulContext<BS, BU, S, U> by statefulContext

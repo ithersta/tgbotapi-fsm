@@ -11,6 +11,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.protobuf)
     api(libs.inmo.tgbotapi)
     api(libs.koin.core)
+    testImplementation(kotlin("test"))
 }
 
 java {

@@ -96,7 +96,7 @@ import dev.inmo.tgbotapi.utils.PreviewFeature
 import kotlinx.serialization.*
 import kotlin.reflect.KClass
 import com.ithersta.tgbotapi.fsm.entities.triggers.*
-import com.ithersta.tgbotapi.boot.encoder.Base122
+import com.ithersta.tgbotapi.encoder.Base122
                             
 @OptIn(PreviewFeature::class, ExperimentalSerializationApi::class)
 inline·fun·<BS·:·Any,·BU·:·Any,·S·:·BS,·U·:·BU,·K·:·Any,·reified·Q·:·%T>·StateFilterBuilder<BS,·BU,·S,·U,·K>.onDataCallbackQuery(

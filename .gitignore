@@ -25,3 +25,4 @@ build
 hs_err_pid*
 **/gradle.properties
 *.db
+*.DS_Store

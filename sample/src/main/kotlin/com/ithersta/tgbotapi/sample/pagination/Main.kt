@@ -6,6 +6,7 @@ import com.ithersta.tgbotapi.fsm.engines.regularEngine
 import com.ithersta.tgbotapi.fsm.engines.repository.InMemoryStateRepositoryImpl
 import com.ithersta.tgbotapi.fsm.entities.triggers.onCommand
 import com.ithersta.tgbotapi.pagination.pager
+import com.ithersta.tgbotapi.pagination.replyMarkup
 import com.ithersta.tgbotapi.sample.pagination.generated.dataButton
 import dev.inmo.tgbotapi.bot.ktor.telegramBot
 import dev.inmo.tgbotapi.extensions.api.send.send
