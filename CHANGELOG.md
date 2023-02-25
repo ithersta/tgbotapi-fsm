@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.28.1 (2023-02-25)
+
+### Added
+- Ability to pass data to stateless pager
+
 ## 0.27.0 (2023-02-22)
 
 ### Changed
