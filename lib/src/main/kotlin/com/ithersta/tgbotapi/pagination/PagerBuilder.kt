@@ -1,6 +1,7 @@
 package com.ithersta.tgbotapi.pagination
 
 import com.ithersta.tgbotapi.encoder.Base122
+import com.ithersta.tgbotapi.fsm.BaseStatefulContext
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.InlineKeyboardBuilder
 import dev.inmo.tgbotapi.extensions.utils.types.buttons.dataButton
 import dev.inmo.tgbotapi.utils.row
@@ -10,14 +11,15 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import kotlinx.serialization.serializer
 import kotlin.reflect.KClass
 
-open class PagerBuilder<Data : Any>(
+open class PagerBuilder<Data : Any, BS : Any, BU : Any, S : BS, U : BU>(
     val page: Int,
     val offset: Int,
     val limit: Int,
     val data: Data,
     private val dataKClass: KClass<Data>,
-    private val id: String
-) {
+    private val id: String,
+    statefulContext: BaseStatefulContext<BS, BU, S, U>
+) : BaseStatefulContext<BS, BU, S, U> by statefulContext {
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
     fun InlineKeyboardBuilder.navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") {
         val encodedData = Base122.encode(ProtoBuf.encodeToByteArray(dataKClass.serializer(), data))

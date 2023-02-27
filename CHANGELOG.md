@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.28.3 (2023-02-27)
+
+### Added
+- Expose `BaseStatefulContext` in stateless pager
+
 ## 0.28.1 (2023-02-25)
 
 ### Added

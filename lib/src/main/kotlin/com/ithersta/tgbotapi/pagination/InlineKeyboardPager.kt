@@ -1,6 +1,7 @@
 package com.ithersta.tgbotapi.pagination
 
 import com.ithersta.tgbotapi.encoder.Base122
+import com.ithersta.tgbotapi.fsm.BaseStatefulContext
 import com.ithersta.tgbotapi.fsm.builders.RoleFilterBuilder
 import com.ithersta.tgbotapi.fsm.entities.triggers.Trigger
 import dev.inmo.tgbotapi.bot.exceptions.MessageIsNotModifiedException
@@ -21,20 +22,24 @@ import kotlin.reflect.KClass
 const val PREFIX = "PGR"
 
 @OptIn(PreviewFeature::class)
-class InlineKeyboardPager<Data : Any>(
+class InlineKeyboardPager<Data : Any, BS : Any, BU : Any, U : BU>(
     private val id: String,
     private val limit: Int,
     private val dataKClass: KClass<Data>,
-    private val block: PagerBuilder<Data>.() -> InlineKeyboardMarkup
+    private val block: PagerBuilder<Data, BS, BU, BS, U>.() -> InlineKeyboardMarkup
 ) {
+    context(BaseStatefulContext<BS, BU, BS, U>)
     fun replyMarkup(data: Data) = page(data, 0)
-    fun page(data: Data, index: Int) = block(PagerBuilder(index, index * limit, limit, data, dataKClass, id))
+
+    context(BaseStatefulContext<BS, BU, BS, U>)
+    fun page(data: Data, index: Int) =
+        block(PagerBuilder(index, index * limit, limit, data, dataKClass, id, this@BaseStatefulContext))
 
     @OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
-    internal fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.setupTriggers() {
+    internal fun RoleFilterBuilder<BS, BU, U, UserId>.setupTriggers() {
         anyState {
             add(
-                Trigger<_, _, _, _, Triple<Int, Data, CallbackQuery>>(
+                Trigger<BS, BU, BS, U, Triple<Int, Data, CallbackQuery>>(
                     handler = { (page, data, query) ->
                         val message = query.asMessageCallbackQuery()?.message ?: return@Trigger
                         try {
@@ -53,7 +58,8 @@ class InlineKeyboardPager<Data : Any>(
                                 val tokens = it.data.removePrefix(id).split(' ', limit = 2)
                                 val page = tokens[0].toInt()
                                 val rawData = tokens[1]
-                                val data = ProtoBuf.decodeFromByteArray(dataKClass.serializer(), Base122.decode(rawData))
+                                val data =
+                                    ProtoBuf.decodeFromByteArray(dataKClass.serializer(), Base122.decode(rawData))
                                 Triple(page, data, it)
                             }.getOrNull()
                         }
@@ -66,18 +72,20 @@ class InlineKeyboardPager<Data : Any>(
 fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.pager(
     id: String,
     limit: Int = 5,
-    block: PagerBuilder<Unit>.() -> InlineKeyboardMarkup
+    block: PagerBuilder<Unit, BS, BU, BS, U>.() -> InlineKeyboardMarkup
 ) = pager(id, limit, Unit::class, block)
 
 fun <BS : Any, BU : Any, U : BU, Data : Any> RoleFilterBuilder<BS, BU, U, UserId>.pager(
     id: String,
     limit: Int = 5,
     dataKClass: KClass<Data>,
-    block: PagerBuilder<Data>.() -> InlineKeyboardMarkup
-): InlineKeyboardPager<Data> {
+    block: PagerBuilder<Data, BS, BU, BS, U>.() -> InlineKeyboardMarkup
+): InlineKeyboardPager<Data, BS, BU, U> {
     return InlineKeyboardPager(id, limit, dataKClass, block).also {
         with(it) { setupTriggers() }
     }
 }
 
-val InlineKeyboardPager<Unit>.replyMarkup get() = replyMarkup(Unit)
+context(BaseStatefulContext<BS, BU, BS, U>)
+val <BS : Any, BU : Any, U : BU> InlineKeyboardPager<Unit, BS, BU, U>.replyMarkup
+    get() = replyMarkup(Unit)
