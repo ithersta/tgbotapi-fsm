@@ -48,10 +48,11 @@ class InlineKeyboardPager<Data : Any>(
                         ?.takeIf { it.data.startsWith(PREFIX) }
                         ?.let {
                             runCatching {
-                                val tokens = it.data.removePrefix(PREFIX).split(' ', limit = 3)
-                                tokens[0].also { parsedId -> check(parsedId == id) }
-                                val page = tokens[1].toInt()
-                                val rawData = tokens[2]
+                                val withoutPrefix = it.data.removePrefix(PREFIX)
+                                check(withoutPrefix.startsWith(id))
+                                val tokens = it.data.removePrefix(id).split(' ', limit = 2)
+                                val page = tokens[0].toInt()
+                                val rawData = tokens[1]
                                 val data = ProtoBuf.decodeFromByteArray(dataKClass.serializer(), Base122.decode(rawData))
                                 Triple(page, data, it)
                             }.getOrNull()

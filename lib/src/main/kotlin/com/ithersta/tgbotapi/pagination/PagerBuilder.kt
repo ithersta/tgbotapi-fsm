@@ -22,7 +22,7 @@ open class PagerBuilder<Data : Any>(
     fun InlineKeyboardBuilder.navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") {
         val encodedData = Base122.encode(ProtoBuf.encodeToByteArray(dataKClass.serializer(), data))
         val maxPage = ((itemCount - 1) / limit).coerceAtLeast(0)
-        fun goToPage(index: Int) = "$PREFIX$id ${(index.coerceIn(0, maxPage))} $encodedData"
+        fun goToPage(index: Int) = "$PREFIX$id${(index.coerceIn(0, maxPage))} $encodedData"
         if (maxPage == 0 && page == 0) return
         row {
             dataButton(if (page > 0) previous else " ", goToPage(page - 1))
