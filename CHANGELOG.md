@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.28.4 (2023-02-28)
+
+### Changed
+- Allow not passing `BaseStatefulContext` in stateless pager
+
 ## 0.28.3 (2023-02-27)
 
 ### Added

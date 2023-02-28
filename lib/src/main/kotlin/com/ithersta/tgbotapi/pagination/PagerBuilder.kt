@@ -18,8 +18,8 @@ open class PagerBuilder<Data : Any, BS : Any, BU : Any, S : BS, U : BU>(
     val data: Data,
     private val dataKClass: KClass<Data>,
     private val id: String,
-    statefulContext: BaseStatefulContext<BS, BU, S, U>
-) : BaseStatefulContext<BS, BU, S, U> by statefulContext {
+    val context: BaseStatefulContext<BS, BU, S, U>?
+) {
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
     fun InlineKeyboardBuilder.navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") {
         val encodedData = Base122.encode(ProtoBuf.encodeToByteArray(dataKClass.serializer(), data))

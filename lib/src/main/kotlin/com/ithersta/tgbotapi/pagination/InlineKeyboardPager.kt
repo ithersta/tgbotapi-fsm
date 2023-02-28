@@ -28,12 +28,16 @@ class InlineKeyboardPager<Data : Any, BS : Any, BU : Any, U : BU>(
     private val dataKClass: KClass<Data>,
     private val block: PagerBuilder<Data, BS, BU, BS, U>.() -> InlineKeyboardMarkup
 ) {
-    context(BaseStatefulContext<BS, BU, BS, U>)
-    fun replyMarkup(data: Data) = page(data, 0)
+    fun replyMarkup(data: Data, context: BaseStatefulContext<BS, BU, BS, U>?) = page(data, 0, context)
 
     context(BaseStatefulContext<BS, BU, BS, U>)
-    fun page(data: Data, index: Int) =
-        block(PagerBuilder(index, index * limit, limit, data, dataKClass, id, this@BaseStatefulContext))
+    fun replyMarkup(data: Data) = replyMarkup(data, this@BaseStatefulContext)
+
+    fun page(data: Data, index: Int, context: BaseStatefulContext<BS, BU, BS, U>?) =
+        block(PagerBuilder(index, index * limit, limit, data, dataKClass, id, context))
+
+    context(BaseStatefulContext<BS, BU, BS, U>)
+    fun page(data: Data, index: Int) = page(data, index, this@BaseStatefulContext)
 
     @OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
     internal fun RoleFilterBuilder<BS, BU, U, UserId>.setupTriggers() {
@@ -43,7 +47,7 @@ class InlineKeyboardPager<Data : Any, BS : Any, BU : Any, U : BU>(
                     handler = { (page, data, query) ->
                         val message = query.asMessageCallbackQuery()?.message ?: return@Trigger
                         try {
-                            editMessageReplyMarkup(message, page(data, page))
+                            editMessageReplyMarkup(message, page(data, page, this))
                         } catch (_: MessageIsNotModifiedException) {
                         }
                         answer(query)
