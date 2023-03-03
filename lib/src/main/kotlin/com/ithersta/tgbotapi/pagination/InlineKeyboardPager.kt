@@ -26,17 +26,17 @@ class InlineKeyboardPager<Data : Any, BS : Any, BU : Any, U : BU>(
     private val id: String,
     private val limit: Int,
     private val dataKClass: KClass<Data>,
-    private val block: PagerBuilder<Data, BS, BU, BS, U>.() -> InlineKeyboardMarkup
+    private val block: PagerBuilder<Data, BS, BU, out BS, U>.() -> InlineKeyboardMarkup
 ) {
-    fun replyMarkup(data: Data, context: BaseStatefulContext<BS, BU, BS, U>?) = page(data, 0, context)
+    fun replyMarkup(data: Data, context: BaseStatefulContext<BS, BU, *, U>?) = page(data, 0, context)
 
-    context(BaseStatefulContext<BS, BU, BS, U>)
+    context(BaseStatefulContext<BS, BU, *, U>)
     fun replyMarkup(data: Data) = replyMarkup(data, this@BaseStatefulContext)
 
-    fun page(data: Data, index: Int, context: BaseStatefulContext<BS, BU, BS, U>?) =
+    fun page(data: Data, index: Int, context: BaseStatefulContext<BS, BU, *, U>?) =
         block(PagerBuilder(index, index * limit, limit, data, dataKClass, id, context))
 
-    context(BaseStatefulContext<BS, BU, BS, U>)
+    context(BaseStatefulContext<BS, BU, *, U>)
     fun page(data: Data, index: Int) = page(data, index, this@BaseStatefulContext)
 
     @OptIn(ExperimentalSerializationApi::class, InternalSerializationApi::class)
@@ -76,20 +76,20 @@ class InlineKeyboardPager<Data : Any, BS : Any, BU : Any, U : BU>(
 fun <BS : Any, BU : Any, U : BU> RoleFilterBuilder<BS, BU, U, UserId>.pager(
     id: String,
     limit: Int = 5,
-    block: PagerBuilder<Unit, BS, BU, BS, U>.() -> InlineKeyboardMarkup
+    block: PagerBuilder<Unit, BS, BU, out BS, U>.() -> InlineKeyboardMarkup
 ) = pager(id, limit, Unit::class, block)
 
 fun <BS : Any, BU : Any, U : BU, Data : Any> RoleFilterBuilder<BS, BU, U, UserId>.pager(
     id: String,
     limit: Int = 5,
     dataKClass: KClass<Data>,
-    block: PagerBuilder<Data, BS, BU, BS, U>.() -> InlineKeyboardMarkup
+    block: PagerBuilder<Data, BS, BU, out BS, U>.() -> InlineKeyboardMarkup
 ): InlineKeyboardPager<Data, BS, BU, U> {
     return InlineKeyboardPager(id, limit, dataKClass, block).also {
         with(it) { setupTriggers() }
     }
 }
 
-context(BaseStatefulContext<BS, BU, BS, U>)
+context(BaseStatefulContext<BS, BU, *, U>)
 val <BS : Any, BU : Any, U : BU> InlineKeyboardPager<Unit, BS, BU, U>.replyMarkup
-    get() = replyMarkup(Unit)
+    get() = replyMarkup(Unit, context = this@BaseStatefulContext)
