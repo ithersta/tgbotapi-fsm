@@ -27,6 +27,7 @@ val stateMachine = rolelessStateMachine<DialogState, UserId>(initialState = Empt
             id = "numbers",
             onPagerStateChanged = { state.snapshot.copy(pagerState = it) }
         ) {
+            val state = context!!.state
             val numbers = (state.snapshot.startWith..state.snapshot.startWith + 100).toList()
             val paginatedNumbers = numbers.drop(offset).take(limit)
             inlineKeyboard {

@@ -59,7 +59,7 @@ class InlineKeyboardPager<Data : Any, BS : Any, BU : Any, U : BU>(
                             runCatching {
                                 val withoutPrefix = it.data.removePrefix(PREFIX)
                                 check(withoutPrefix.startsWith(id))
-                                val tokens = it.data.removePrefix(id).split(' ', limit = 2)
+                                val tokens = withoutPrefix.removePrefix(id).split(' ', limit = 2)
                                 val page = tokens[0].toInt()
                                 val rawData = tokens[1]
                                 val data =
