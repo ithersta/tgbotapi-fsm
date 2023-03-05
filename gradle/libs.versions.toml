@@ -1,7 +1,7 @@
 [versions]
 tgbotapi-fsm = "0.28.5"
 tgbotapi-sqlite = "0.6.1"
-inmo-tgbotapi = "5.2.0"
+inmo-tgbotapi = "6.0.3"
 koin = "3.3.3"
 ksp = "1.8.10-1.0.9"
 kotlinpoet = "1.12.0"
@@ -10,9 +10,9 @@ kotlinpoet = "1.12.0"
 inmo-tgbotapi = { module = "dev.inmo:tgbotapi", version.ref = "inmo-tgbotapi" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 tgbotapi-fsm = { module = "com.ithersta.tgbotapi:fsm", version.ref = "tgbotapi-fsm" }
-tgbotapi-commands = { module = "com.ithersta.tgbotapi:commands", version = "0.2.0" }
+tgbotapi-commands = { module = "com.ithersta.tgbotapi:commands", version = "0.3.0" }
 tgbotapi-sqlite = { module = "com.ithersta.tgbotapi:sqlite-persistence", version.ref = "tgbotapi-sqlite" }
-kotlinx-serialization-protobuf = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.4.1"
+kotlinx-serialization-protobuf = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.5.0"
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
