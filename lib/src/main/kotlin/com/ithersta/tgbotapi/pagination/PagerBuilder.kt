@@ -20,6 +20,13 @@ open class PagerBuilder<Data : Any, BS : Any, BU : Any, S : BS, U : BU>(
     private val id: String,
     val context: BaseStatefulContext<BS, BU, S, U>?
 ) {
+    /**
+     * Creates a navigation row with a previous page button, a next page button and a page counter.
+     *
+     * @param itemCount count of all items.
+     * @param previous the text on a previous page button.
+     * @param next the text on a next page button.
+     */
     @OptIn(InternalSerializationApi::class, ExperimentalSerializationApi::class)
     fun InlineKeyboardBuilder.navigationRow(itemCount: Int, previous: String = "⬅️", next: String = "➡️") {
         val encodedData = Base122.encode(ProtoBuf.encodeToByteArray(dataKClass.serializer(), data))
