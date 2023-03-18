@@ -11,7 +11,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import kotlinx.serialization.serializer
 import kotlin.reflect.KClass
 
-open class PagerBuilder<Data : Any, BS : Any, BU : Any, S : BS, U : BU>(
+open class PagerBuilder<Data : Any, BS : Any, BU : Any, S : BS, U : BU> internal constructor(
     val page: Int,
     val offset: Int,
     val limit: Int,

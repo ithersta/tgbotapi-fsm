@@ -10,7 +10,7 @@ import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.utils.row
 import kotlin.reflect.safeCast
 
-open class Menu<BS : Any, BU : Any, U : BU>(
+open class Menu<BS : Any, BU : Any, U : BU> internal constructor(
     val messageText: String,
     val targetState: BS,
     val entries: List<MenuEntry<BS, BU, U>>

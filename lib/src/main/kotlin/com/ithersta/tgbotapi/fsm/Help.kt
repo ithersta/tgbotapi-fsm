@@ -11,7 +11,7 @@ import dev.inmo.tgbotapi.types.update.abstracts.Update
 import dev.inmo.tgbotapi.utils.PreviewFeature
 
 @OptIn(PreviewFeature::class)
-suspend fun RequestsExecutor.tryHandlingHelp(update: Update, getCommands: () -> List<BotCommand>): Boolean {
+internal suspend fun RequestsExecutor.tryHandlingHelp(update: Update, getCommands: () -> List<BotCommand>): Boolean {
     val message = update.asBaseSentMessageUpdate()?.data?.asCommonMessage()?.withContent<TextContent>() ?: return false
     if (message.content.text != "/help") return false
     sendTextMessage(message.chat, getCommands().joinToString(separator = "\n") {

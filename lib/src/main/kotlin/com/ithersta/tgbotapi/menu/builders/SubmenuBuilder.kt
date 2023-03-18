@@ -2,7 +2,7 @@ package com.ithersta.tgbotapi.menu.builders
 
 import com.ithersta.tgbotapi.menu.entities.Submenu
 
-class SubmenuBuilder<BS : Any, BU : Any, U : BU>(
+class SubmenuBuilder<BS : Any, BU : Any, U : BU> internal constructor(
     private val text: String,
     messageText: String,
     state: BS,
