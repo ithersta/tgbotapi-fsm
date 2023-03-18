@@ -18,12 +18,12 @@ class NestedStateMachine<BS : Any, BU : Any, U : BU, K : Any>(
         return filters.firstNotNullOfOrNull { it.handler(update, stateHolder, user) }
     }
 
-    fun onStateChangedHandlers(
+    fun onStateChangedHandler(
         user: U,
         stateHolder: StateMachine<BS, *, *>.StateHolder<BS>
-    ): List<AppliedOnStateChangedHandler<K>> {
-        if (stateHolder.level < level) return emptyList()
-        return filters.flatMap { it.onStateChangedHandler(stateHolder, user) }
+    ): AppliedOnStateChangedHandler<K>? {
+        if (stateHolder.level < level) return null
+        return filters.firstNotNullOfOrNull { it.onStateChangedHandler(stateHolder, user) }
     }
 
     fun commands(): List<BotCommand> {

@@ -35,17 +35,15 @@ class StateFilter<BS : Any, BU : Any, S : BS, U : BU, K : Any>(
     fun onStateChangedHandler(
         stateHolder: StateMachine<BS, *, *>.StateHolder<BS>,
         user: U
-    ): List<AppliedOnStateChangedHandler<K>> {
-        if (isApplicable(stateHolder).not()) return emptyList()
+    ): AppliedOnStateChangedHandler<K>? {
+        if (isApplicable(stateHolder).not()) return null
         return when (stateHolder.level) {
-            level -> listOfNotNull(
-                onChangedTrigger?.handler(
-                    stateHolder as StateMachine<BS, *, *>.StateHolder<S>,
-                    user
-                )
+            level -> onChangedTrigger?.handler(
+                stateHolder as StateMachine<BS, *, *>.StateHolder<S>,
+                user
             )
 
-            else -> nestedStateMachines.flatMap { it.onStateChangedHandlers(user, stateHolder) }
+            else -> nestedStateMachines.firstNotNullOfOrNull { it.onStateChangedHandler(user, stateHolder) }
         }
     }
 

@@ -18,12 +18,12 @@ class RoleFilter<BS : Any, BU : Any, U : BU, K : Any>(
         return filters.firstNotNullOfOrNull { it.handler(update, stateHolder, user) }
     }
 
-    fun onStateChangedHandlers(
+    fun onStateChangedHandler(
         baseUser: BU,
         stateHolder: StateMachine<BS, *, *>.StateHolder<BS>
-    ): List<AppliedOnStateChangedHandler<K>> {
-        val user = map(baseUser) ?: return emptyList()
-        return filters.flatMap { it.onStateChangedHandler(stateHolder, user) }
+    ): AppliedOnStateChangedHandler<K>? {
+        val user = map(baseUser) ?: return null
+        return filters.firstNotNullOfOrNull { it.onStateChangedHandler(stateHolder, user) }
     }
 
     fun commands(baseUser: BU): List<BotCommand> {

@@ -42,7 +42,7 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
         ) {
             val user = getUser()
             val stateHolder = StateHolder<BS>(stateStack, this, this@DataAccessor, isRollingBack)
-            onStateChangedHandlers(user, stateHolder).forEach { handler ->
+            onStateChangedHandler(user, stateHolder)?.let { handler ->
                 handler.invoke(bot, key, { refreshCommands(commands(user)) }, this)
             }
         }
@@ -124,8 +124,8 @@ class StateMachine<BS : Any, BU : Any, K : Any>(
         return filters.firstNotNullOfOrNull { it.handler(user, update, stateHolder) }
     }
 
-    private fun onStateChangedHandlers(user: BU, stateHolder: StateHolder<BS>): List<AppliedOnStateChangedHandler<K>> {
-        return filters.flatMap { it.onStateChangedHandlers(user, stateHolder) }
+    private fun onStateChangedHandler(user: BU, stateHolder: StateHolder<BS>): AppliedOnStateChangedHandler<K>? {
+        return filters.firstNotNullOfOrNull { it.onStateChangedHandler(user, stateHolder) }
     }
 
     private fun commands(user: BU): List<BotCommand> {

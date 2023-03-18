@@ -13,7 +13,7 @@ java {
     withSourcesJar()
 }
 
-version = "0.1.11"
+version = "0.1.12"
 
 dependencies {
     api(libs.tgbotapi.fsm)

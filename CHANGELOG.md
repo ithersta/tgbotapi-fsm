@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.29.0 (2023-03-18)
+
+### Changed
+- Invoke only the first matching `onEnter` block
+
 ## 0.28.4 (2023-02-28)
 
 ### Changed
