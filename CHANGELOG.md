@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.30.0 (2023-04-03)
+
+### Added
+- `onWebAppData` event trigger
+
 ## 0.29.0 (2023-03-18)
 
 ### Changed
