@@ -9,8 +9,8 @@ import dev.inmo.tgbotapi.types.message.PrivateEventMessage
 import dev.inmo.tgbotapi.types.message.abstracts.ChatEventMessage
 
 inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any, reified T : ChatEvent, reified CEM : ChatEventMessage<T>> StateFilterBuilder<BS, BU, S, U, K>.onEvent(
-    noinline handler: Handler<BS, BU, S, U, CEM>,
-    crossinline filter: (CEM) -> Boolean = { true }
+    crossinline filter: (CEM) -> Boolean = { true },
+    noinline handler: Handler<BS, BU, S, U, CEM>
 ) = add(
     Trigger(handler) {
         (baseSentMessageUpdateOrNull()?.data?.chatEventMessageOrNull()?.takeIf { it.chatEvent is T } as? CEM)
@@ -19,6 +19,6 @@ inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any, reified T : ChatEvent, 
 )
 
 inline fun <BS : Any, BU : Any, S : BS, U : BU, K : Any> StateFilterBuilder<BS, BU, S, U, K>.onWebAppData(
-    noinline handler: Handler<BS, BU, S, U, PrivateEventMessage<WebAppData>>,
-    crossinline filter: (PrivateEventMessage<WebAppData>) -> Boolean = { true }
-) = onEvent(handler, filter)
+    crossinline filter: (PrivateEventMessage<WebAppData>) -> Boolean = { true },
+    noinline handler: Handler<BS, BU, S, U, PrivateEventMessage<WebAppData>>
+) = onEvent(filter, handler)
