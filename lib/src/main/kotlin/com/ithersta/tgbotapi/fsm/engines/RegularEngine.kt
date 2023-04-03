@@ -5,10 +5,12 @@ import com.ithersta.tgbotapi.fsm.entities.StateMachine
 import dev.inmo.micro_utils.coroutines.subscribeSafelyWithoutExceptionsAsync
 import dev.inmo.tgbotapi.bot.RequestsExecutor
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
-import dev.inmo.tgbotapi.extensions.utils.fromUserOrNull
+import dev.inmo.tgbotapi.extensions.utils.extensions.sourceChat
+import dev.inmo.tgbotapi.extensions.utils.extensions.sourceUser
 import dev.inmo.tgbotapi.extensions.utils.shortcuts.executeAsync
 import dev.inmo.tgbotapi.requests.bot.SetMyCommands
 import dev.inmo.tgbotapi.types.BotCommand
+import dev.inmo.tgbotapi.types.ChatId
 import dev.inmo.tgbotapi.types.UserId
 import dev.inmo.tgbotapi.types.commands.BotCommandScope
 import dev.inmo.tgbotapi.types.update.abstracts.Update
@@ -74,7 +76,7 @@ fun <BS : Any, BU : Any> StateMachine<BS, BU, UserId>.regularEngine(
     stateRepository: StateRepository<UserId, BS>,
     exceptionHandler: ExceptionHandler<UserId>
 ) = regularEngine(
-    getKey = { it.data.fromUserOrNull()?.from?.id },
+    getKey = { it.sourceUser()?.id ?: it.sourceChat()?.id?.chatId?.let { ChatId(it) } },
     getUser = getUser,
     getScope = { BotCommandScope.Chat(it) },
     stateRepository = stateRepository,
