@@ -7,6 +7,7 @@ import dev.inmo.tgbotapi.bot.RequestsExecutor
 import dev.inmo.tgbotapi.extensions.behaviour_builder.BehaviourContext
 import dev.inmo.tgbotapi.extensions.utils.extensions.sourceChat
 import dev.inmo.tgbotapi.extensions.utils.extensions.sourceUser
+import dev.inmo.tgbotapi.extensions.utils.privateChatOrNull
 import dev.inmo.tgbotapi.extensions.utils.shortcuts.executeAsync
 import dev.inmo.tgbotapi.requests.bot.SetMyCommands
 import dev.inmo.tgbotapi.types.BotCommand
@@ -76,7 +77,7 @@ fun <BS : Any, BU : Any> StateMachine<BS, BU, UserId>.regularEngine(
     stateRepository: StateRepository<UserId, BS>,
     exceptionHandler: ExceptionHandler<UserId>
 ) = regularEngine(
-    getKey = { it.sourceUser()?.id ?: it.sourceChat()?.id?.chatId?.let { ChatId(it) } },
+    getKey = { it.sourceChat()?.privateChatOrNull()?.id?.chatId?.let { ChatId(it) } ?: it.sourceUser()?.id },
     getUser = getUser,
     getScope = { BotCommandScope.Chat(it) },
     stateRepository = stateRepository,
