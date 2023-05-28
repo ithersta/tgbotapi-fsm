@@ -1,7 +1,7 @@
 [versions]
 tgbotapi-fsm = "0.30.1"
 tgbotapi-sqlite = "0.6.1"
-inmo-tgbotapi = "7.0.1"
+inmo-tgbotapi = "7.1.3"
 koin = "3.3.3"
 ksp = "1.8.10-1.0.9"
 kotlinpoet = "1.12.0"
