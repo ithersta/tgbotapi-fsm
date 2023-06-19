@@ -4,7 +4,7 @@ tgbotapi-sqlite = "0.6.1"
 inmo-tgbotapi = "7.0.1"
 koin = "3.3.3"
 ksp = "1.8.10-1.0.9"
-kotlinpoet = "1.12.0"
+kotlinpoet = "1.14.2"
 
 [libraries]
 inmo-tgbotapi = { module = "dev.inmo:tgbotapi", version.ref = "inmo-tgbotapi" }
