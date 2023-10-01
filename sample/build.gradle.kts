@@ -15,7 +15,7 @@ dependencies {
     implementation(project(":commands"))
     implementation(project(":boot"))
     testImplementation(kotlin("test"))
-    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation("io.mockk:mockk:1.13.8")
     testImplementation(project(":test"))
     ksp(project(":boot-ksp"))
 }
