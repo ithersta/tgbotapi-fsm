@@ -18,7 +18,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.tgbotapi.fsm)
     implementation("io.ktor:ktor-client-mock:2.2.4")
-    implementation("io.mockk:mockk:1.13.4")
+    implementation("io.mockk:mockk:1.13.8")
 }
 
 publishing {
